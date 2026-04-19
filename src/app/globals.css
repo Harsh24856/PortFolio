@@ -26,6 +26,8 @@ html {
   /* Section-to-section snap when scrolling (hero → projects, etc.) */
   scroll-snap-type: y proximity;
   scroll-padding-top: 5.5rem;
+  overflow-x: clip;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {

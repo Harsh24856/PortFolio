@@ -26,14 +26,26 @@ const PROJECTS = [
   },
 ]
 
+const TILT_IDLE =
+  "perspective(1200px) rotateX(12deg) rotateY(-4deg) scale(0.97)"
+const TILT_FLAT = "perspective(1200px) rotateX(0deg) rotateY(0deg) scale(1)"
+
 export function ProjectsSection() {
   const [current, setCurrent] = useState(0)
   const tiltRef = useRef<HTMLDivElement>(null)
   const wrapRef = useRef<HTMLDivElement>(null)
+  const fineHover = useFineHover()
 
   const goTo = (idx: number) => setCurrent((idx + PROJECTS.length) % PROJECTS.length)
 
+  useEffect(() => {
+    const el = tiltRef.current
+    if (!el) return
+    el.style.transform = fineHover ? TILT_IDLE : TILT_FLAT
+  }, [fineHover])
+
   const handleMouseMove = (e: React.MouseEvent) => {
+    if (!fineHover) return
     const r = wrapRef.current?.getBoundingClientRect()
     if (!r || !tiltRef.current) return
     const nx = ((e.clientX - r.left) / r.width - 0.5) * 2
@@ -41,21 +53,21 @@ export function ProjectsSection() {
     tiltRef.current.style.transform = `perspective(1200px) rotateX(${3 - ny * 6}deg) rotateY(${nx * 5}deg) scale(1)`
   }
   const handleMouseLeave = () => {
-    if (tiltRef.current)
-      tiltRef.current.style.transform = "perspective(1200px) rotateX(12deg) rotateY(-4deg) scale(0.97)"
+    if (!tiltRef.current) return
+    tiltRef.current.style.transform = fineHover ? TILT_IDLE : TILT_FLAT
   }
 
   return (
-    <section id="projects" className="relative py-24 bg-[#0d0d0d] overflow-hidden">
+    <section id="projects" className="relative py-16 sm:py-24 bg-[#0d0d0d] overflow-x-hidden overflow-y-visible max-w-[100vw]">
       {/* Glows */}
       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-red-700/5 rounded-full blur-[80px] pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-red-700/4 rounded-full blur-[80px] pointer-events-none" />
 
-      <div className="max-w-5xl mx-auto px-6 relative z-10">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 relative z-10">
         {/* Header */}
-        <motion.div initial={{ opacity:0, y:30 }} whileInView={{ opacity:1, y:0 }} viewport={{ once:true }} transition={{ duration:0.6 }} className="mb-12">
-          <p className="text-[10px] tracking-[0.3em] text-red-600 uppercase font-['Space_Grotesk'] mb-2">What I've Built</p>
-          <h2 className="font-['Space_Grotesk'] text-5xl font-bold tracking-tight text-[#e5e2e1] leading-none">
+        <motion.div initial={{ opacity:0, y:30 }} whileInView={{ opacity:1, y:0 }} viewport={{ once:true }} transition={{ duration:0.6 }} className="mb-8 sm:mb-12">
+          <p className="text-[10px] tracking-[0.3em] text-red-600 uppercase font-['Space_Grotesk'] mb-2">What I&apos;ve Built</p>
+          <h2 className="font-['Space_Grotesk'] text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-[#e5e2e1] leading-[1.05]">
             ENGINEERED<br/><span className="text-red-600">SYSTEMS.</span>
           </h2>
           <p className="text-xs text-[#e5e2e1]/40 mt-3 max-w-xs leading-relaxed">
@@ -64,11 +76,23 @@ export function ProjectsSection() {
         </motion.div>
 
         {/* Tablet */}
-        <div ref={wrapRef} onMouseMove={handleMouseMove} onMouseLeave={handleMouseLeave} className="w-full" style={{ perspective: "1200px" }}>
-          <div ref={tiltRef} style={{ transform: "perspective(1200px) rotateX(12deg) rotateY(-4deg) scale(0.97)", transition: "transform 0.6s cubic-bezier(0.22,1,0.36,1)" }}>
+        <div
+          ref={wrapRef}
+          onMouseMove={fineHover ? handleMouseMove : undefined}
+          onMouseLeave={fineHover ? handleMouseLeave : undefined}
+          className="w-full max-w-full"
+          style={{ perspective: fineHover ? "1200px" : undefined }}
+        >
+          <div
+            ref={tiltRef}
+            style={{
+              transform: fineHover ? TILT_IDLE : TILT_FLAT,
+              transition: "transform 0.6s cubic-bezier(0.22,1,0.36,1)",
+            }}
+          >
 
             {/* Tablet body */}
-            <div className="bg-[#1a1a1a] rounded-[28px] p-3.5 border border-white/5 shadow-[0_40px_80px_rgba(0,0,0,0.6)] relative">
+            <div className="bg-[#1a1a1a] rounded-2xl sm:rounded-[28px] p-2 sm:p-3.5 border border-white/5 shadow-[0_40px_80px_rgba(0,0,0,0.6)] relative max-w-full">
 
               {/* Notch */}
               <div className="absolute top-3.5 left-1/2 -translate-x-1/2 flex items-center gap-1.5 z-10">
@@ -80,7 +104,7 @@ export function ProjectsSection() {
               </div>
 
               {/* Screen */}
-              <div className="bg-[#131313] rounded-[18px] overflow-hidden h-[420px] relative">
+              <div className="bg-[#131313] rounded-xl sm:rounded-[18px] overflow-hidden min-h-[280px] h-[min(420px,72svh)] sm:h-[420px] relative">
                 <div className="absolute inset-0 bg-gradient-to-br from-red-800/10 to-transparent pointer-events-none z-0" />
 
                 {/* Slider */}
@@ -90,19 +114,24 @@ export function ProjectsSection() {
                     style={{ transform: `translateX(-${current * 100}%)`, transition: "transform 0.6s cubic-bezier(0.22,1,0.36,1)" }}
                   >
                     {PROJECTS.map((p, i) => (
-                      <div key={i} className="min-w-full h-full flex gap-6 p-8 items-center relative z-10">
+                      <div
+                        key={i}
+                        className="min-w-full h-full flex flex-col md:flex-row gap-4 md:gap-6 p-4 sm:p-6 md:p-8 md:items-center items-stretch relative z-10 overflow-y-auto overscroll-y-contain"
+                      >
                         {/* Image */}
-                        <div className="flex-[0_0_46%] h-full rounded-xl overflow-hidden border border-white/5 bg-[#1c1c1c] relative group">
+                        <div className="w-full shrink-0 h-36 sm:h-44 md:h-full md:flex-[0_0_46%] rounded-xl overflow-hidden border border-white/5 bg-[#1c1c1c] relative group aspect-video md:aspect-auto">
                           <img src={p.img} alt={p.title} className="w-full h-full object-cover opacity-75 saturate-[0.7] group-hover:opacity-95 group-hover:saturate-100 transition-all duration-500" />
                           <div className="absolute inset-0 bg-gradient-to-t from-[#131313]/70 to-transparent" />
                         </div>
                         {/* Info */}
-                        <div className="flex-1 flex flex-col gap-3">
+                        <div className="flex-1 flex flex-col gap-2 sm:gap-3 min-h-0 min-w-0">
                           <div className="flex items-center gap-3">
                             <span className="text-[9px] tracking-[0.2em] uppercase text-red-500 bg-red-500/10 border border-red-500/20 px-2.5 py-1 rounded font-['Space_Grotesk']">{p.num}</span>
                             <span className="flex-1 h-px bg-white/8" />
                           </div>
-                          <h3 className="font-['Space_Grotesk'] text-3xl font-bold text-[#e5e2e1] tracking-tight">{p.title}</h3>
+                          <h3 className="font-['Space_Grotesk'] text-xl sm:text-2xl md:text-3xl font-bold text-[#e5e2e1] tracking-tight break-words">
+                            {p.title}
+                          </h3>
                           <p className="text-[11px] text-[#e5e2e1]/50 leading-relaxed">{p.tagline}</p>
                           <div className="flex flex-wrap gap-1">
                             {p.stack.map(s => (
@@ -123,9 +152,9 @@ export function ProjectsSection() {
                                   href={p.liveUrl}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="text-[10px] uppercase tracking-[0.2em] px-4 py-2 bg-gradient-to-br from-red-500 to-red-700 text-white rounded font-['Space_Grotesk'] hover:opacity-85 transition shadow-[0_0_20px_rgba(226,27,35,0.25)]"
+                                  className="inline-flex items-center justify-center min-h-10 text-[10px] uppercase tracking-[0.2em] px-4 py-2.5 bg-gradient-to-br from-red-500 to-red-700 text-white rounded font-['Space_Grotesk'] hover:opacity-85 transition shadow-[0_0_20px_rgba(226,27,35,0.25)] touch-manipulation"
                                 >
-                                  Initialize ↗
+                                  Live
                                 </a>
                               )}
                               {p.repoUrl && (
@@ -133,7 +162,7 @@ export function ProjectsSection() {
                                   href={p.repoUrl}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] px-4 py-2 border border-white/15 text-[#e5e2e1]/90 rounded font-['Space_Grotesk'] hover:border-red-500/50 hover:text-red-400 transition"
+                                  className="inline-flex items-center justify-center gap-2 min-h-10 text-[10px] uppercase tracking-[0.2em] px-4 py-2.5 border border-white/15 text-[#e5e2e1]/90 rounded font-['Space_Grotesk'] hover:border-red-500/50 hover:text-red-400 transition touch-manipulation"
                                 >
                                   <svg
                                     className="w-3.5 h-3.5 shrink-0 text-current"
@@ -144,7 +173,7 @@ export function ProjectsSection() {
                                     <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12" />
                                   </svg>
                                   GitHub
-                                  <span aria-hidden>↗</span>
+                                  <span aria-hidden></span>
                                 </a>
                               )}
                             </div>
@@ -156,15 +185,34 @@ export function ProjectsSection() {
                 </div>
 
                 {/* Bottom nav bar inside screen */}
-                <div className="absolute bottom-0 left-0 right-0 h-12 bg-[#0d0d0d]/95 border-t border-white/5 flex items-center justify-center gap-2 z-20">
-                  <button onClick={() => goTo(current - 1)} className="w-7 h-7 rounded-full border border-white/10 text-white/50 hover:border-red-500 hover:text-red-500 transition text-sm flex items-center justify-center">‹</button>
+                <div className="absolute bottom-0 left-0 right-0 h-12 bg-[#0d0d0d]/95 border-t border-white/5 flex items-center justify-center gap-1.5 sm:gap-2 z-20 px-2">
+                  <button
+                    type="button"
+                    onClick={() => goTo(current - 1)}
+                    className="min-h-10 min-w-10 rounded-full border border-white/10 text-white/50 hover:border-red-500 hover:text-red-500 transition text-sm flex items-center justify-center touch-manipulation"
+                    aria-label="Previous project"
+                  >
+                    ‹
+                  </button>
                   {PROJECTS.map((_, i) => (
-                    <button key={i} onClick={() => goTo(i)}
-                      className={`w-7 h-7 rounded-full border text-[10px] font-['Space_Grotesk'] transition-all ${current === i ? "bg-red-600 border-red-600 text-white shadow-[0_0_12px_rgba(226,27,35,0.4)]" : "border-white/10 text-white/40 hover:border-white/30"}`}>
+                    <button
+                      type="button"
+                      key={i}
+                      onClick={() => goTo(i)}
+                      className={`min-h-10 min-w-10 rounded-full border text-[10px] font-['Space_Grotesk'] transition-all touch-manipulation ${current === i ? "bg-red-600 border-red-600 text-white shadow-[0_0_12px_rgba(226,27,35,0.4)]" : "border-white/10 text-white/40 hover:border-white/30"}`}
+                      aria-label={`Project ${i + 1}`}
+                    >
                       {i + 1}
                     </button>
                   ))}
-                  <button onClick={() => goTo(current + 1)} className="w-7 h-7 rounded-full border border-white/10 text-white/50 hover:border-red-500 hover:text-red-500 transition text-sm flex items-center justify-center">›</button>
+                  <button
+                    type="button"
+                    onClick={() => goTo(current + 1)}
+                    className="min-h-10 min-w-10 rounded-full border border-white/10 text-white/50 hover:border-red-500 hover:text-red-500 transition text-sm flex items-center justify-center touch-manipulation"
+                    aria-label="Next project"
+                  >
+                    ›
+                  </button>
                 </div>
               </div>
 

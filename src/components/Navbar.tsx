@@ -74,8 +74,9 @@ export function Navbar() {
         <div className="max-w-[1200px] mx-auto px-6 md:px-16 flex items-center justify-between">
           {/* Brand */}
           <button
+            type="button"
             onClick={() => scrollTo("#home")}
-            className="cursor-pointer hover:opacity-80 transition-opacity duration-300 relative w-10 h-10 rounded-full"
+            className="cursor-pointer hover:opacity-80 transition-opacity duration-300 relative min-h-11 min-w-11 h-11 w-11 rounded-full touch-manipulation [-webkit-tap-highlight-color:transparent]"
             id="nav-brand"
           >
             <Image
@@ -94,6 +95,7 @@ export function Navbar() {
               return (
                 <li key={l.href}>
                   <button
+                    type="button"
                     onClick={() => scrollTo(l.href)}
                     id={`nav-${l.label.toLowerCase()}`}
                     className={`relative font-sans text-[11px] tracking-[0.15em] uppercase cursor-pointer transition-all duration-500 py-1 ${
@@ -116,8 +118,9 @@ export function Navbar() {
 
           {/* Mobile burger */}
           <button
+            type="button"
             onClick={() => setMobileOpen(!mobileOpen)}
-            className="md:hidden flex flex-col gap-1.5 cursor-pointer p-2"
+            className="md:hidden flex flex-col gap-1.5 cursor-pointer min-h-11 min-w-11 items-center justify-center touch-manipulation [-webkit-tap-highlight-color:transparent]"
             aria-label="Toggle menu"
             id="nav-mobile-toggle"
           >
@@ -153,17 +156,11 @@ export function Navbar() {
           onClick={() => setMobileOpen(false)}
         />
         <div
-          className={`absolute top-0 right-0 h-full w-72 bg-neutral-950/95 backdrop-blur-2xl border-l border-[#5d3f3c]/15 p-8 pt-24 transition-transform duration-500 ${
+          className={`absolute top-0 right-0 h-full w-[min(100vw-3rem,18rem)] max-w-[min(100vw-3rem,18rem)] bg-neutral-950/95 backdrop-blur-2xl border-l border-[#5d3f3c]/15 p-6 sm:p-8 pt-[max(6rem,env(safe-area-inset-top)+4rem)] transition-transform duration-500 ${
             mobileOpen ? "translate-x-0" : "translate-x-full"
           }`}
         >
-          {/* HUD indicator */}
-          <div className="absolute top-6 right-6 flex items-center gap-2 opacity-40">
-            <div className="w-1.5 h-1.5 rounded-full bg-[#e21b23] animate-pulse" />
-            <span className="font-sans text-[8px] tracking-[0.2em] text-[#e5e2e1] uppercase">
-              Nav_Active
-            </span>
-          </div>
+
 
           <ul className="flex flex-col gap-1">
             {NAV_LINKS.map((l) => {
@@ -171,8 +168,9 @@ export function Navbar() {
               return (
                 <li key={l.href}>
                   <button
+                    type="button"
                     onClick={() => scrollTo(l.href)}
-                    className={`w-full text-left px-4 py-3 font-sans text-lg uppercase tracking-tight cursor-pointer transition-all duration-500 rounded-sm ${
+                    className={`w-full text-left px-4 py-3.5 min-h-12 font-sans text-base sm:text-lg uppercase tracking-tight cursor-pointer transition-all duration-500 rounded-sm touch-manipulation ${
                       isActive
                         ? "text-[#e21b23] bg-[#e21b23]/10 font-bold"
                         : "text-neutral-400 hover:text-[#e5e2e1] hover:bg-[#e21b23]/5"
@@ -186,7 +184,7 @@ export function Navbar() {
           </ul>
 
           {/* Bottom branding */}
-          <div className="absolute bottom-8 left-8 right-8">
+          <div className="absolute bottom-[max(2rem,env(safe-area-inset-bottom))] left-6 right-6 sm:left-8 sm:right-8">
             <div className="h-px bg-[#5d3f3c]/20 mb-4" />
             <p className="font-sans text-[8px] tracking-[0.25em] text-[#e5e2e1]/20 uppercase">
               © {new Date().getFullYear()} H_Sehra

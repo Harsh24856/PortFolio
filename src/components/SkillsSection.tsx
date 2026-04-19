@@ -2,7 +2,8 @@
 "use client"
 
 import { motion, useInView } from "framer-motion"
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
+import { useFineHover } from "@/components/useFineHover"
 
 /* ── Skill data ──────────────────────────────────── */
 
@@ -52,7 +53,7 @@ function AnimatedBar({
   return (
     <div ref={ref}>
       <div className="flex justify-between items-end mb-2">
-        <span className="font-['Space_Grotesk'] text-[11px] tracking-[0.15em] text-[#e7bdb8] uppercase">
+        <span className="font-['Space_Grotesk'] text-[11px] tracking-[0.15em] text-[#e7bdb8] uppercase min-w-0 break-words pr-2">
           {name}
         </span>
         <span
@@ -100,8 +101,16 @@ function TiltCard({
 }) {
   const ref = useRef<HTMLDivElement>(null)
   const [hovered, setHovered] = useState(false)
+  const fineHover = useFineHover()
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    el.style.transform = fineHover ? "rotateY(-15deg)" : "none"
+  }, [fineHover])
 
   const handleMouseMove = (e: React.MouseEvent) => {
+    if (!fineHover) return
     const r = ref.current?.getBoundingClientRect()
     if (!r || !ref.current) return
     const nx = ((e.clientX - r.left) / r.width - 0.5) * 2
@@ -110,19 +119,19 @@ function TiltCard({
   }
 
   const handleMouseLeave = () => {
-    if (ref.current) ref.current.style.transform = "rotateY(-15deg)"
+    if (ref.current) ref.current.style.transform = fineHover ? "rotateY(-15deg)" : "none"
     setHovered(false)
   }
 
   return (
-    <div style={{ perspective: "1000px" }}>
+    <div style={{ perspective: fineHover ? "1000px" : undefined }}>
       <div
         ref={ref}
-        onMouseMove={handleMouseMove}
+        onMouseMove={fineHover ? handleMouseMove : undefined}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={handleMouseLeave}
-        className={`bg-[#0e0e0e] border border-[#5d3f3c]/15 p-8 md:p-12 relative overflow-hidden ease-out hover:border-[#e21b23]/28 ${className} [transition:transform_320ms_cubic-bezier(0.4,0,0.2,1),border-color_0.8s_cubic-bezier(0.4,0,0.2,1),box-shadow_0.8s_cubic-bezier(0.4,0,0.2,1)] hover:shadow-[0_0_48px_rgba(226,27,35,0.07)]`}
-        style={{ transform: "rotateY(-15deg)" }}
+        className={`bg-[#0e0e0e] border border-[#5d3f3c]/15 p-6 sm:p-8 md:p-12 relative overflow-hidden ease-out hover:border-[#e21b23]/28 max-w-full ${className} [transition:transform_320ms_cubic-bezier(0.4,0,0.2,1),border-color_0.8s_cubic-bezier(0.4,0,0.2,1),box-shadow_0.8s_cubic-bezier(0.4,0,0.2,1)] hover:shadow-[0_0_48px_rgba(226,27,35,0.07)]`}
+        style={{ transform: fineHover ? "rotateY(-15deg)" : "none" }}
       >
         {/* Ambient glow */}
         <div className="absolute inset-0 shadow-[0_0_60px_rgba(226,27,35,0.03)] pointer-events-none mix-blend-screen" />
@@ -167,7 +176,7 @@ export function SkillsSection() {
   return (
     <section
       id="skills"
-      className="relative py-24 sm:py-32 overflow-hidden bg-[#131313]"
+      className="relative py-16 sm:py-24 md:py-32 overflow-x-hidden overflow-y-visible bg-[#131313] max-w-[100vw]"
     >
       {/* Grid + radial background */}
       <div
@@ -185,7 +194,7 @@ export function SkillsSection() {
       {/* Top divider line */}
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#e21b23]/30 to-transparent" />
 
-      <div className="max-w-[1200px] mx-auto px-6 md:px-16 relative z-10">
+      <div className="max-w-[1200px] mx-auto px-4 sm:px-6 md:px-16 relative z-10">
 
         {/* Section header */}
         <motion.div
@@ -199,7 +208,7 @@ export function SkillsSection() {
             <p className="text-[10px] tracking-[0.3em] text-red-600 uppercase font-['Space_Grotesk'] mb-2">
               Technical Arsenal
             </p>
-            <h2 className="font-['Space_Grotesk'] text-5xl md:text-7xl font-black tracking-tighter uppercase leading-none">
+            <h2 className="font-['Space_Grotesk'] text-3xl sm:text-5xl md:text-7xl font-black tracking-tighter uppercase leading-[1.05]">
               <span className="text-[#e5e2e1]">TECHNICAL</span>
               <br />
               <span

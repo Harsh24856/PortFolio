@@ -64,11 +64,20 @@ export default function Home() {
 
   return (
     <>
+      {isLocked && (
+        <style dangerouslySetInnerHTML={{ __html: `
+          body { 
+            overflow: hidden !important; 
+            touch-action: none !important;
+            height: 100vh !important;
+          }
+        `}} />
+      )}
       <Navbar />
-      <main className="relative">
+      <main className={`relative ${isLocked ? "fixed inset-0 h-[100dvh] w-screen overflow-hidden" : ""}`}>
         <motion.div
           style={{ y: heroY, opacity: heroOpacity }}
-          className="relative z-0 min-h-screen shrink-0 snap-start snap-always will-change-transform"
+          className="relative z-0 min-h-screen min-h-[100dvh] shrink-0 snap-start snap-always will-change-transform max-w-[100vw]"
         >
           <HeroScene />
         </motion.div>

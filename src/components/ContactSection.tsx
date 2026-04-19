@@ -2,7 +2,8 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
+import { useFineHover } from "@/components/useFineHover"
 
 const SOCIALS = [
   {
@@ -56,10 +57,21 @@ const SOCIALS = [
 ]
 
 /* ── Perspective form card ── */
+const PERSPECTIVE_IDLE = "perspective(1000px) rotateY(-5deg)"
+const PERSPECTIVE_FLAT = "perspective(1000px) rotateY(0deg) rotateX(0deg)"
+
 function PerspectiveCard({ children }: { children: React.ReactNode }) {
   const ref = useRef<HTMLDivElement>(null)
+  const fineHover = useFineHover()
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    el.style.transform = fineHover ? PERSPECTIVE_IDLE : PERSPECTIVE_FLAT
+  }, [fineHover])
 
   const handleMouseMove = (e: React.MouseEvent) => {
+    if (!fineHover) return
     const r = ref.current?.getBoundingClientRect()
     if (!r || !ref.current) return
     const nx = ((e.clientX - r.left) / r.width - 0.5) * 2
@@ -68,18 +80,20 @@ function PerspectiveCard({ children }: { children: React.ReactNode }) {
   }
 
   const handleMouseLeave = () => {
-    if (ref.current)
-      ref.current.style.transform = "perspective(1000px) rotateY(-5deg)"
+    if (ref.current) ref.current.style.transform = fineHover ? PERSPECTIVE_IDLE : PERSPECTIVE_FLAT
   }
 
   return (
-    <div style={{ perspective: "1000px" }}>
+    <div style={{ perspective: fineHover ? "1000px" : undefined }}>
       <div
         ref={ref}
-        onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseLeave}
-        style={{ transform: "perspective(1000px) rotateY(-5deg)", transition: "transform 0.5s cubic-bezier(0.4,0,0.2,1)" }}
-        className="relative overflow-hidden rounded-xl bg-[#353534]/40 backdrop-blur-xl border border-[#5d3f3c]/15 p-8 md:p-12 shadow-[0_20px_60px_rgba(0,0,0,0.4)]"
+        onMouseMove={fineHover ? handleMouseMove : undefined}
+        onMouseLeave={fineHover ? handleMouseLeave : undefined}
+        style={{
+          transform: fineHover ? PERSPECTIVE_IDLE : PERSPECTIVE_FLAT,
+          transition: "transform 0.5s cubic-bezier(0.4,0,0.2,1)",
+        }}
+        className="relative overflow-hidden rounded-xl bg-[#353534]/40 backdrop-blur-xl border border-[#5d3f3c]/15 p-6 sm:p-8 md:p-12 shadow-[0_20px_60px_rgba(0,0,0,0.4)] max-w-full"
       >
         {/* HUD top-right indicator */}
         <div className="absolute top-4 right-4 flex items-center gap-2 opacity-30">
@@ -115,7 +129,7 @@ export function ContactSection() {
   }
 
   return (
-    <section id="contact" className="relative py-24 sm:py-32 overflow-hidden bg-[#131313]">
+    <section id="contact" className="relative py-16 sm:py-24 md:py-32 overflow-x-hidden overflow-y-visible bg-[#131313] max-w-[100vw]">
 
       {/* Top divider */}
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#e21b23]/30 to-transparent" />
@@ -139,7 +153,7 @@ export function ContactSection() {
         }}
       />
 
-      <div className="max-w-[1200px] mx-auto px-6 md:px-16 relative z-10">
+      <div className="max-w-[1200px] mx-auto px-4 sm:px-6 md:px-16 relative z-10">
 
         {/* Section header */}
         <motion.div
@@ -152,7 +166,7 @@ export function ContactSection() {
           <p className="font-['Space_Grotesk'] text-[10px] tracking-[0.3em] text-[#e21b23] uppercase mb-3">
             Get In Touch
           </p>
-          <h2 className="font-['Space_Grotesk'] text-5xl md:text-7xl font-black tracking-tighter leading-tight text-[#e5e2e1]">
+          <h2 className="font-['Space_Grotesk'] text-3xl sm:text-5xl md:text-7xl font-black tracking-tighter leading-tight text-[#e5e2e1]">
             Initiate <br />
             <span className="text-[#353534] line-through opacity-50">Connection</span>{" "}
             <span className="text-[#e21b23]">Contact.</span>
@@ -192,7 +206,7 @@ export function ContactSection() {
                     value={formState.name}
                     onChange={(e) => setFormState((s) => ({ ...s, name: e.target.value }))}
                     required
-                    className="bg-transparent border-0 border-b-2 border-[#5d3f3c] text-[#e5e2e1] font-['Inter'] py-3 w-full placeholder:text-[#e7bdb8]/30 focus:outline-none focus:border-[#ffb4ac] transition-colors duration-300"
+                    className="bg-transparent border-0 border-b-2 border-[#5d3f3c] text-[#e5e2e1] font-['Inter'] text-base py-3 w-full placeholder:text-[#e7bdb8]/30 focus:outline-none focus:border-[#ffb4ac] transition-colors duration-300"
                     style={{ boxShadow: "none" }}
                   />
                 </div>
@@ -212,7 +226,7 @@ export function ContactSection() {
                     value={formState.email}
                     onChange={(e) => setFormState((s) => ({ ...s, email: e.target.value }))}
                     required
-                    className="bg-transparent border-0 border-b-2 border-[#5d3f3c] text-[#e5e2e1] font-['Inter'] py-3 w-full placeholder:text-[#e7bdb8]/30 focus:outline-none focus:border-[#ffb4ac] transition-colors duration-300"
+                    className="bg-transparent border-0 border-b-2 border-[#5d3f3c] text-[#e5e2e1] font-['Inter'] text-base py-3 w-full placeholder:text-[#e7bdb8]/30 focus:outline-none focus:border-[#ffb4ac] transition-colors duration-300"
                   />
                 </div>
 
@@ -231,7 +245,7 @@ export function ContactSection() {
                     value={formState.message}
                     onChange={(e) => setFormState((s) => ({ ...s, message: e.target.value }))}
                     required
-                    className="bg-transparent border-0 border-b-2 border-[#5d3f3c] text-[#e5e2e1] font-['Inter'] py-3 w-full placeholder:text-[#e7bdb8]/30 focus:outline-none focus:border-[#ffb4ac] transition-colors duration-300 resize-none"
+                    className="bg-transparent border-0 border-b-2 border-[#5d3f3c] text-[#e5e2e1] font-['Inter'] text-base py-3 w-full placeholder:text-[#e7bdb8]/30 focus:outline-none focus:border-[#ffb4ac] transition-colors duration-300 resize-none min-h-[120px]"
                   />
                 </div>
 
@@ -239,7 +253,7 @@ export function ContactSection() {
                 <div className="pt-2">
                   <button
                     type="submit"
-                    className="flex items-center justify-center gap-3 px-8 py-4 font-['Space_Grotesk'] font-bold text-sm tracking-[0.15em] uppercase text-white rounded-sm w-full md:w-auto transition-all duration-300"
+                    className="flex items-center justify-center gap-3 min-h-12 px-8 py-4 font-['Space_Grotesk'] font-bold text-sm tracking-[0.15em] uppercase text-white rounded-sm w-full md:w-auto transition-all duration-300 touch-manipulation"
                     style={{
                       background: "linear-gradient(135deg, #ffb4ac 0%, #e21b23 100%)",
                       boxShadow: submitted
@@ -318,12 +332,9 @@ export function ContactSection() {
         {/* Footer */}
         <div className="mt-24 pt-8 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="font-['Space_Grotesk'] text-[9px] tracking-widest text-[#e5e2e1]/30 uppercase">
-            © {new Date().getFullYear()} Harsh Sehra / Kinetic Architect
+            © {new Date().getFullYear()} Harsh Sehra
           </p>
           <div className="flex gap-6 font-['Space_Grotesk'] text-[9px] tracking-widest">
-            <a href="#" className="text-[#e5e2e1]/30 hover:text-[#e21b23] transition-colors uppercase">Privacy_Protocol</a>
-            <a href="#" className="text-[#e5e2e1]/30 hover:text-[#e21b23] transition-colors uppercase">Encryption_Standards</a>
-            <a href="#" className="text-[#e5e2e1]/30 hover:text-[#e21b23] transition-colors uppercase">Terms</a>
           </div>
         </div>
 
