@@ -95,16 +95,32 @@ export function useOrganicBlobClip() {
     }
   }, [])
 
-  const onMouseMove = useCallback((e: React.MouseEvent) => {
+  const updatePointer = useCallback((clientX: number, clientY: number) => {
     const rect = sceneRef.current?.getBoundingClientRect()
     if (!rect) return
-    mouseRef.current = { x: e.clientX - rect.left, y: e.clientY - rect.top }
+    mouseRef.current = { x: clientX - rect.left, y: clientY - rect.top }
   }, [])
+
+  const onMouseMove = useCallback(
+    (e: React.MouseEvent) => {
+      updatePointer(e.clientX, e.clientY)
+    },
+    [updatePointer],
+  )
+
+  const onTouchMove = useCallback(
+    (e: React.TouchEvent) => {
+      if (e.touches.length === 0) return
+      const t = e.touches[0]
+      updatePointer(t.clientX, t.clientY)
+    },
+    [updatePointer],
+  )
 
   const setBlobActive = useCallback((active: boolean) => {
     const w = window as BlobWindow
     w.__setBlobActive?.(active)
   }, [])
 
-  return { sceneRef, clipD, onMouseMove, setBlobActive }
+  return { sceneRef, clipD, onMouseMove, onTouchMove, setBlobActive }
 }

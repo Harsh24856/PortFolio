@@ -27,11 +27,11 @@ export function HeroIntroSplash() {
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-[#030303] font-[family-name:var(--font-geist-sans)]"
+      className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-[#030303] px-6 pb-[env(safe-area-inset-bottom)] font-[family-name:var(--font-geist-sans)] max-w-[100vw] overflow-x-hidden"
       aria-hidden
     >
       {/* Logo / image */}
-      <div className="mb-6 w-24 h-24 sm:w-100 sm:h-100 relative">
+      <div className="mb-6 h-24 w-24 shrink-0 sm:h-32 sm:w-32 relative">
         <Image
           src="/images/image.png"
           alt="Logo"
@@ -42,7 +42,7 @@ export function HeroIntroSplash() {
       </div>
 
       {/* Welcome text with letter-by-letter black/red toggle */}
-      <p className="text-center text-5xl sm:text-6xl md:text-7xl font-bold tracking-tight select-none">
+      <p className="text-center text-4xl leading-tight sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight select-none break-words max-w-full">
         {"Welcome".split("").map((letter, i) => (
           <span
             key={i}

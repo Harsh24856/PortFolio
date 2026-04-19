@@ -11,7 +11,8 @@ const BASE_SRC = "/images/harsh.png"
 const REVEAL_SRC = "/images/12.png"
 
 export function HeroScene() {
-  const { sceneRef, clipD, onMouseMove, setBlobActive } = useOrganicBlobClip()
+  const { sceneRef, clipD, onMouseMove, onTouchMove, setBlobActive } =
+    useOrganicBlobClip()
   const [isHovered, setIsHovered] = useState(false)
 
   return (
@@ -19,6 +20,7 @@ export function HeroScene() {
       id="home"
       ref={sceneRef}
       onMouseMove={onMouseMove}
+      onTouchMove={onTouchMove}
       onMouseEnter={() => {
         setIsHovered(true)
         setBlobActive(true)
@@ -27,7 +29,18 @@ export function HeroScene() {
         setIsHovered(false)
         setBlobActive(false)
       }}
-      className="relative w-full min-h-screen overflow-hidden cursor-none bg-[#030303] text-white"
+      onTouchStart={(e) => {
+        setIsHovered(true)
+        setBlobActive(true)
+        onTouchMove(e)
+      }}
+      onTouchEnd={(e) => {
+        if (e.touches.length === 0) {
+          setIsHovered(false)
+          setBlobActive(false)
+        }
+      }}
+      className="relative w-full min-h-screen min-h-[100dvh] overflow-x-hidden overflow-y-hidden touch-pan-y bg-[#030303] text-white max-w-[100vw] cursor-none md:cursor-none"
     >
       <HeroBaseImage src={BASE_SRC} />
       <HeroRevealSvg clipD={clipD} revealSrc={REVEAL_SRC} />
@@ -41,8 +54,9 @@ export function HeroScene() {
 
       {/* scroll-down indicator */}
       <button
+        type="button"
         onClick={() => document.getElementById("projects")?.scrollIntoView({ behavior: "smooth" })}
-        className="scroll-indicator absolute bottom-6 left-1/2 z-[4] flex flex-col items-center gap-1 cursor-pointer"
+        className="scroll-indicator absolute bottom-[max(1.25rem,env(safe-area-inset-bottom))] left-1/2 z-[4] flex min-h-11 min-w-11 flex-col items-center justify-center gap-1 cursor-pointer touch-manipulation [-webkit-tap-highlight-color:transparent]"
         aria-label="Scroll down"
       >
         <span className="text-[10px] text-white/40 uppercase tracking-[0.2em]">Scroll</span>
