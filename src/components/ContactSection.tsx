@@ -1,6 +1,7 @@
 // components/ContactSection.tsx
 "use client"
 
+import emailjs from "@emailjs/browser"
 import { motion } from "framer-motion"
 import { useEffect, useRef, useState } from "react"
 import { useFineHover } from "@/components/useFineHover"
@@ -33,7 +34,7 @@ const SOCIALS = [
   {
     label: "GitHub",
     sublabel: "Code Repository",
-    href: "https://github.com/harshsehra",
+    href: "https://github.com/Harsh24856",
     value: "github.com/harshsehra",
     icon: (
       <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -45,7 +46,7 @@ const SOCIALS = [
   {
     label: "LinkedIn",
     sublabel: "Professional Network",
-    href: "https://linkedin.com/in/harshsehra",
+    href: "https://www.linkedin.com/in/harsh-sehra-223a81346/",
     value: "linkedin.com/in/harshsehra",
     icon: (
       <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -106,7 +107,7 @@ function PerspectiveCard({ children }: { children: React.ReactNode }) {
         {/* Decorative fingerprint watermark */}
         <div className="absolute bottom-4 right-4 opacity-5 select-none pointer-events-none">
           <svg className="w-16 h-16" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M17.81 4.47c-.08 0-.16-.02-.23-.06C15.66 3.42 14 3 12.01 3c-1.98 0-3.86.47-5.57 1.41-.24.13-.54.04-.68-.2-.13-.24-.04-.55.2-.68C7.82 2.52 9.86 2 12.01 2c2.13 0 3.99.47 6.03 1.52.26.14.35.43.22.69-.09.18-.27.26-.45.26zm4.28 2.16c-.1 0-.2-.03-.29-.09-2.35-1.56-5.17-2.38-8.04-2.38-1.57 0-3.08.24-4.52.72-.27.09-.56-.06-.65-.33-.09-.27.06-.56.33-.65C10.61 3.9 12.27 3.63 14 3.63c3.15 0 6.11.87 8.61 2.55.23.15.29.46.14.69-.09.15-.26.26-.46.26zM12 23c-1.78 0-3.35-.7-4.52-1.86l-.03-.03-.04-.04C5.96 19.65 5 17.8 5 15.77c0-4.28 3.14-7 7-7s7 2.72 7 7c0 .55-.45 1-1 1s-1-.45-1-1c0-3.18-2.24-5-5-5s-5 1.82-5 5c0 1.47.67 2.84 1.84 3.91l.03.03C10.34 21.01 11.12 21 12 21c.34 0 .67-.03 1-.08.55-.09 1.06.28 1.15.83.09.55-.28 1.06-.83 1.15-.43.07-.87.1-1.32.1z"/>
+            <path d="M17.81 4.47c-.08 0-.16-.02-.23-.06C15.66 3.42 14 3 12.01 3c-1.98 0-3.86.47-5.57 1.41-.24.13-.54.04-.68-.2-.13-.24-.04-.55.2-.68C7.82 2.52 9.86 2 12.01 2c2.13 0 3.99.47 6.03 1.52.26.14.35.43.22.69-.09.18-.27.26-.45.26zm4.28 2.16c-.1 0-.2-.03-.29-.09-2.35-1.56-5.17-2.38-8.04-2.38-1.57 0-3.08.24-4.52.72-.27.09-.56-.06-.65-.33-.09-.27.06-.56.33-.65C10.61 3.9 12.27 3.63 14 3.63c3.15 0 6.11.87 8.61 2.55.23.15.29.46.14.69-.09.15-.26.26-.46.26zM12 23c-1.78 0-3.35-.7-4.52-1.86l-.03-.03-.04-.04C5.96 19.65 5 17.8 5 15.77c0-4.28 3.14-7 7-7s7 2.72 7 7c0 .55-.45 1-1 1s-1-.45-1-1c0-3.18-2.24-5-5-5s-5 1.82-5 5c0 1.47.67 2.84 1.84 3.91l.03.03C10.34 21.01 11.12 21 12 21c.34 0 .67-.03 1-.08.55-.09 1.06.28 1.15.83.09.55-.28 1.06-.83 1.15-.43.07-.87.1-1.32.1z" />
           </svg>
         </div>
 
@@ -120,12 +121,32 @@ function PerspectiveCard({ children }: { children: React.ReactNode }) {
 export function ContactSection() {
   const [formState, setFormState] = useState({ name: "", email: "", message: "" })
   const [submitted, setSubmitted] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setSubmitted(true)
-    setTimeout(() => setSubmitted(false), 3000)
-    setFormState({ name: "", email: "", message: "" })
+    setSubmitting(true)
+    try {
+      await emailjs.send(
+        process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID!,
+        process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID!,
+        {
+          name: formState.name,
+          email: formState.email,
+          message: formState.message,
+          time: new Date().toLocaleString(),
+          title: "Portfolio Contact",
+        },
+        process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY!
+      )
+      setSubmitted(true)
+      setFormState({ name: "", email: "", message: "" })
+      setTimeout(() => setSubmitted(false), 3000)
+    } catch {
+      // submission failed — form state preserved for retry
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (
@@ -253,7 +274,8 @@ export function ContactSection() {
                 <div className="pt-2">
                   <button
                     type="submit"
-                    className="flex items-center justify-center gap-3 min-h-12 px-8 py-4 font-['Space_Grotesk'] font-bold text-sm tracking-[0.15em] uppercase text-white rounded-sm w-full md:w-auto transition-all duration-300 touch-manipulation"
+                    disabled={submitting}
+                    className="flex items-center justify-center gap-3 min-h-12 px-8 py-4 font-['Space_Grotesk'] font-bold text-sm tracking-[0.15em] uppercase text-white rounded-sm w-full md:w-auto transition-all duration-300 touch-manipulation disabled:opacity-60 disabled:cursor-not-allowed"
                     style={{
                       background: "linear-gradient(135deg, #ffb4ac 0%, #e21b23 100%)",
                       boxShadow: submitted
@@ -268,6 +290,8 @@ export function ContactSection() {
                         </svg>
                         Transmitted
                       </>
+                    ) : submitting ? (
+                      <span>Transmitting…</span>
                     ) : (
                       <>
                         <span>Transmit</span>

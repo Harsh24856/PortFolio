@@ -83,6 +83,7 @@ export function Navbar() {
               src="/images/screen.png"
               alt="Logo"
               fill
+              sizes="44px"
               className="object-contain"
               preload
             />

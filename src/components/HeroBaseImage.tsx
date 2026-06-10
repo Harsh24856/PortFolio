@@ -14,6 +14,7 @@ export function HeroBaseImage({
       src={src}
       alt={alt}
       fill
+      sizes="100vw"
       className="object-cover z-[1]"
       preload
     />

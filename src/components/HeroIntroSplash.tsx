@@ -36,6 +36,7 @@ export function HeroIntroSplash() {
           src="/images/image.png"
           alt="Logo"
           fill
+          sizes="(max-width: 640px) 256px, 400px"
           className="object-contain"
           preload
         />

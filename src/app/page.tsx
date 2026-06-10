@@ -26,7 +26,7 @@ export default function Home() {
 
     // Force scroll to top instantly
     window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior })
-    
+
     document.body.style.overflow = "hidden"
     const timer = setTimeout(() => {
       document.body.style.overflow = ""
@@ -74,7 +74,7 @@ export default function Home() {
         `}} />
       )}
       <Navbar />
-      <main className={`relative ${isLocked ? "fixed inset-0 h-[100dvh] w-screen overflow-hidden" : ""}`}>
+      <main className="relative">
         <motion.div
           style={{ y: heroY, opacity: heroOpacity }}
           className="relative z-0 min-h-screen min-h-[100dvh] shrink-0 snap-start snap-always will-change-transform max-w-[100vw]"
