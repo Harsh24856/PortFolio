@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next"
 import { Archivo, B612_Mono } from "next/font/google"
+import { bootScript } from "@/lib/boot"
 import { profile, siteUrl } from "@/content/profile"
 import "./globals.css"
 
@@ -44,6 +45,11 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={`${archivo.variable} ${b612.variable}`} suppressHydrationWarning>
+      <head>
+        {/* runs before first paint; the root layout never re-mounts, so this
+            is only ever rendered by the server */}
+        <script dangerouslySetInnerHTML={{ __html: bootScript }} />
+      </head>
       <body>{children}</body>
     </html>
   )

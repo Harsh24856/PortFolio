@@ -5,7 +5,13 @@ function revealHero() {
   document.querySelectorAll("#hero [data-reveal]").forEach((el) => el.classList.add("is-in"))
 }
 
+/* the intro plays once per visit: coming back to the home page from a case
+   study should land on it, not watch it load again */
+let played = false
+export const introPlayed = () => played
+
 function release(pre: HTMLElement | null) {
+  played = true
   document.documentElement.classList.remove("is-loading")
   if (pre) pre.style.display = "none"
 }
@@ -15,7 +21,7 @@ function release(pre: HTMLElement | null) {
    engine is told to start depositing the wordmark at the same instant, and
    the headline rises a beat later. */
 export async function runIntro(pre: HTMLElement | null, handover: () => void) {
-  const instant = new URLSearchParams(location.search).has("shot")
+  const instant = played || new URLSearchParams(location.search).has("shot")
   if (!pre || reduced() || instant) {
     handover()
     revealHero()

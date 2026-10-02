@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react"
 import { emit, on } from "@/lib/bus"
-import { runIntro } from "@/lib/intro"
+import { introPlayed, runIntro } from "@/lib/intro"
 import s from "./Preloader.module.css"
 
 /* The build log. The engine reports each fabrication step as it runs; the
@@ -33,6 +33,10 @@ export function Preloader() {
     const offF = on("die:fail", finish)
     /* phones get the shorter wait: the copy matters more than the reveal */
     const cap = setTimeout(finish, window.innerWidth < 860 ? CAP_MS_SMALL : CAP_MS)
+    /* nothing to wait for: the intro already played this visit, or the
+       scene has already reported it is not coming (that event can fire
+       before this effect subscribes) */
+    if (introPlayed() || document.documentElement.classList.contains("no-webgl")) finish()
     return () => {
       offP()
       offR()

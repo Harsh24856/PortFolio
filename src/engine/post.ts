@@ -121,10 +121,11 @@ void main(){
 
   /** compile every pass up front, one yield apart, so the first real frame
       does not pay for five shader programs at once */
-  async warm(yieldFn: () => Promise<void>) {
+  async warm(yieldFn: () => Promise<void>, parallel: boolean) {
     for (const m of [this.bright, this.blur, this.up, this.comp]) {
       this.quad.material = m
-      await this.renderer.compileAsync(this.qScene, this.cam).catch(() => undefined)
+      if (parallel) await this.renderer.compileAsync(this.qScene, this.cam).catch(() => undefined)
+      else this.renderer.compile(this.qScene, this.cam)
       await yieldFn()
     }
   }

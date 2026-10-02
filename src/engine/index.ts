@@ -108,9 +108,13 @@ export async function startEngine(canvas: HTMLCanvasElement, opts: { tier: Tier 
     renderer.initTexture(t)
     await tick()
   }
-  await renderer.compileAsync(scene, camera).catch(() => renderer.compile(scene, camera))
+  /* parallel compilation only where the driver offers it; elsewhere the
+     blocking compile still runs here, before the first frame */
+  const parallel = renderer.extensions.has("KHR_parallel_shader_compile")
+  if (parallel) await renderer.compileAsync(scene, camera).catch(() => renderer.compile(scene, camera))
+  else renderer.compile(scene, camera)
   await tick()
-  if (post) await post.warm(tick)
+  if (post) await post.warm(tick, parallel)
   if (shadows) {
     /* one throwaway render bakes the static shadow map off the first frame */
     renderer.setRenderTarget(post ? post.scene : null)

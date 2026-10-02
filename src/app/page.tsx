@@ -1,4 +1,3 @@
-import { bootScript } from "@/lib/boot"
 import { SceneCanvas } from "@/components/scene/SceneCanvas"
 import { Preloader } from "@/components/chrome/Preloader"
 import { Nav } from "@/components/chrome/Nav"
@@ -18,7 +17,6 @@ import { Footer } from "@/components/sections/Footer"
 export default function Home() {
   return (
     <>
-      <script dangerouslySetInnerHTML={{ __html: bootScript }} />
       <noscript>
         <style>{`#pre{display:none!important}html.is-loading,html.is-loading body{overflow:auto!important}`}</style>
       </noscript>
