@@ -1,119 +1,70 @@
 # Harsh Sehra | portfolio
 
-A night walk through a live WebGL temple. The scroll moves the camera through chapters: hero, About, Work, Sketchbook, Toolkit and Contact. Projects hang in the scene as wind-blown cloth, and an illustrated sketchbook sits in a lit window.
+A night walk across a silicon die. The scroll moves a camera over the chip at architectural scale: in over the bond wires, up the avenue between the memory banks, up the metal stack, through a row of transistor gates and onto the plateau before the core, with a wafer hanging in the sky. Chapters: hero, About, Work, Datasheets, Toolkit, Contact, and a top-down die shot in the footer.
 
-The scene engine and the sketchbook are ThreeUI landing pages (Kage and Sketchbook), vendored byte-exact under `public/landing-pages/` and checked against the SHA-256 hashes in their specs. The portfolio layer on top is this repo's own.
+Black, white and a little blue. Blue is light, never fill: it marks what is live.
 
 ## How it is put together
 
 | Path | Purpose |
 |------|---------|
-| `src/site/index.html` | The page: markup, styles, the Kage engine (patched: HARSH wordmark, seven camera waypoints, cloth cards) and the contact form |
-| `src/app/route.ts` | Serves that document at `/` and bakes the EmailJS ids into it |
-| `src/app/not-found.tsx` | On-brand 404 |
-| `public/landing-pages/` | Vendored Kage and Sketchbook files (scene engine, three.js, fonts, foreground cut-outs, sketchbook plates) |
-| `public/book/` | Project screenshots hung on the cloth cards |
+| `src/app/page.tsx` | The home page: server-rendered sections over the scene |
+| `src/app/work/[slug]/` | Case studies, statically generated from `src/content/projects.ts` |
+| `src/content/` | The single source of truth: profile, projects (with architecture graphs), toolkit matrix |
+| `src/components/sections/` | Hero, About, Work (cloth cards), Datasheets (page-turning book with an X-ray loupe), Toolkit (connection matrix), Contact, Footer |
+| `src/components/chrome/` | Nav, chapter rail, preloader, CAD reticle cursor, chapter foregrounds, motion toggle |
+| `src/engine/` | The WebGL die world, plain TypeScript with no React: renderer, floorplan generator, world builders, wordmark, packets, camera rig, post-processing, cloth |
+| `src/lib/bus.ts` | The only link between the page and the engine: typed window events |
+| `public/shots/` | Project screenshots |
+
+The engine is a separate chunk loaded after first paint. If WebGL is missing, the device is weak, or a build step throws, a CSS poster stays and the page works the same.
+
+## Tiers
+
+| Tier | Who | What |
+|------|-----|------|
+| high | Desktop with a fine pointer | Full scene, shadows, bloom chain |
+| mid | Touch devices, narrow screens | Scene without post-processing or shadows |
+| low | No WebGL2, low memory, Save-Data | Static poster |
+
+Force one with `?tier=high|mid|low`. `?shot=N` jumps to chapter N with the intro finished (for screenshots). `?perf` logs build-step timings.
+
+## Motion and accessibility
+
+- `prefers-reduced-motion`: the camera cuts between chapters instead of flying, ambient motion stops, reveals are instant.
+- A "Pause background motion" control (under the chapter rail, or in the menu on phones) stops the scene, the cloth and the diagram packets, and is remembered.
+- Every hover interaction has a keyboard equivalent. Checked with axe-core and a keyboard walk; WCAG 2.1 AA.
 
 ## Design system
 
-Single dark theme. One accent (vermilion `#e0231c`) for the primary button, the active nav underline and hover washes. Onest throughout. Shapes: panels 14px, fields 10px, buttons and tags pill. Reduced-motion and no-WebGL fallbacks are handled by the engine; the page stays readable as plain HTML.
+Archivo (variable width) for display and text, B612 Mono for data. Tokens live in `src/app/globals.css`:
+
+| Token | Value | Role |
+|-------|-------|------|
+| `--void` | `#000000` | Page and scene black |
+| `--white` | `#F4F5F7` | Primary text |
+| `--silver` | `#A9AFB8` | Body text |
+| `--steel` | `#777D87` | Metadata |
+| `--signal` | `#7AA7FF` | Live states, focus |
+| `--signal-deep` | `#2F5BFF` | Selection |
 
 ## Contact form
 
-Posts straight to EmailJS from the browser. Set these in `.env.local`:
+Posts straight to EmailJS from the browser. Set these in `.env.local` (and in the host's environment before building):
 
 ```
 NEXT_PUBLIC_EMAILJS_SERVICE_ID=
 NEXT_PUBLIC_EMAILJS_TEMPLATE_ID=
 NEXT_PUBLIC_EMAILJS_PUBLIC_KEY=
+NEXT_PUBLIC_SITE_URL=https://your-domain
 ```
 
-Without them the form opens the visitor's mail app instead.
-
----
-
-## Resume (source: `Harsh_Sehra_Resume.docx.pdf`)
-
-### Harsh Sehra
-
-**Software Engineer · Full-Stack & Mobile Development**
-
-**Contact**
-
-- Email: harshsehra1@gmail.com  
-- GitHub | LinkedIn *(add URLs in the site when ready)*
-
----
-
-### Education
-
-**Punjab Engineering College, Chandigarh** — 2024 – 2028  
-
-**B.Tech in Computer Science** · CGPA: **8.91**
-
----
-
-### Experience
-
-**Freelance Software Developer** — 2024 – Present  
-
-Various startups — Healthtech, SaaS, Analytics
-
-- Built full-stack web applications for early-stage startups, delivering REST APIs, frontend interfaces, and database-backed features end-to-end.
-- Supported rapid MVP development and iterative feature releases, working directly with founders to translate product requirements into production code.
-- Collaborated across domains including healthtech, SaaS, and analytics, adapting to diverse tech stacks and business contexts.
-
----
-
-### Projects
-
-#### Bassh — Real-Time Community & Event Discovery
-
-- **Links:** Expo APK (see resume) · <https://bassh-green.vercel.app> · GitHub *(link on resume)*  
-- **Stack:** Next.js · React Native (Expo) · Node.js · PostgreSQL · Supabase  
-- Built a cross-platform mobile and web app for discovering nearby clubs, communities, and events.  
-- Implemented geolocation-based heatmaps to visualize real-time club activity and user engagement.  
-- Designed secure authentication and scalable REST APIs using Node.js, Supabase, and PostgreSQL.
-
-#### DocSpace — Healthcare Verification & Hiring Platform
-
-- **Links:** <https://doc-space-pink.vercel.app> · GitHub  
-- **Stack:** React.js · Node.js · Express · PostgreSQL (Supabase) · Docker · Google Vision API · Socket.IO · Python  
-- Built a scalable platform enabling doctor verification, job discovery, and hospital hiring workflows.  
-- Automated medical license validation using OCR (Google Vision API) and government registry scraping with Playwright.  
-- Implemented real-time doctor–hospital messaging and admin-driven verification dashboards via Socket.IO.
-
-#### MatriCare — Maternal Health Risk Detection Platform
-
-- **Links:** GitHub *(link on resume)*  
-- **Stack:** React · React Native · Node.js · PostgreSQL · Python (ML)  
-- Developed an offline-first mobile and web system to detect pregnancy risks using machine learning models.  
-- Enabled structured data collection for government health monitoring and early medical intervention programs.  
-- Designed role-based interfaces for mothers, frontline healthcare workers, and administrators.
-
----
-
-### Technical skills
-
-- Full-Stack Development  
-- React · Next.js · React Native  
-- Node.js · Express  
-- PostgreSQL · Supabase  
-- Python · Machine Learning  
-- Docker · DevOps  
-- REST API Design  
-- Real-Time Systems (Socket.IO)  
-- OCR & Web Automation  
-- System Design  
-- C++ · Java · JavaScript  
-- Git & Version Control  
-
----
+Without the EmailJS ids, the form opens the visitor's mail app instead. `NEXT_PUBLIC_SITE_URL` is used for metadata and the sitemap.
 
 ## Scripts
 
 ```bash
-npm run dev    # development
+npm run dev    # development, http://localhost:4000
 npm run build  # production build
 npm run start  # run production server
 npm run lint   # eslint
@@ -121,13 +72,4 @@ npm run lint   # eslint
 
 ## Stack
 
-- [Next.js](https://nextjs.org) 16  
-- React 19  
-- Three.js (vendored)  
-- TypeScript  
-
----
-
-## Deploy
-
-Deploy on [Vercel](https://vercel.com) or any Node host that supports Next.js. Set the EmailJS variables in the host's environment before building.
+Next.js 16, React 19, TypeScript, three.js, GSAP (loaded on demand).

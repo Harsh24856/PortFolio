@@ -118,6 +118,8 @@
 }
 .coord {
   color: var(--steel);
+  font-family: var(--font-sans);
+  font-variant-numeric: tabular-nums;
 }
 
 /* the 3D wordmark's stand-in when there is no WebGL */

@@ -27,7 +27,7 @@ Chapters: hero, about (core), work (memory), datasheets (gate), toolkit (I/O bus
 
 ## Design system
 
-- Colour: `--void #000000`, `--white #F4F5F7`, `--silver #A9AFB8`, `--steel #6E747E`, `--signal #7AA7FF`, `--signal-deep #2F5BFF`. Blue is light, never fill.
+- Colour: `--void #000000`, `--white #F4F5F7`, `--silver #A9AFB8`, `--steel #777D87`, `--signal #7AA7FF`, `--signal-deep #2F5BFF`. Blue is light, never fill.
 - Type: Archivo (variable width and weight) for display and text; B612 Mono for real data only.
 - Radius scales with size: 2 / 6 / 14 px.
 

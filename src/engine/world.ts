@@ -178,7 +178,12 @@ export function buildEnvironment(renderer: THREE.WebGLRenderer) {
   return rt
 }
 
-export function buildWorld(scene: THREE.Scene, fp: Floorplan, opts: { aniso: number; lite: boolean; shadows: boolean }) {
+export async function buildWorld(
+  scene: THREE.Scene,
+  fp: Floorplan,
+  opts: { aniso: number; lite: boolean; shadows: boolean },
+  step: () => Promise<void>,
+) {
   const rnd = mulberry32(42)
   const U: WorldState["uniforms"] = {
     uCursor: { value: new THREE.Vector2(0, -1000) },
@@ -237,32 +242,6 @@ export function buildWorld(scene: THREE.Scene, fp: Floorplan, opts: { aniso: num
   }
   root.add(new THREE.Mesh(mergeGeometries(leads), metalMid))
 
-  /* ------------------------------------------------- pads + bond wires */
-  const pads: THREE.BufferGeometry[] = []
-  const wires: THREE.BufferGeometry[] = []
-  const wire = (a: THREE.Vector3, b: THREE.Vector3, lift: number) => {
-    const mid = a.clone().lerp(b, 0.35)
-    mid.y += lift
-    const curve = new THREE.CatmullRomCurve3([a, mid, b.clone().setY(b.y + 0.05)], false, "centripetal")
-    wires.push(new THREE.TubeGeometry(curve, opts.lite ? 14 : 24, 0.022, opts.lite ? 4 : 6, false))
-  }
-  for (let x = DIE.x0 + 3; x < DIE.x1 - 2; x += 2) {
-    pads.push(boxAt(0.95, 0.06, 0.95, x, 0.03, DIE.z1 - 1.3))
-    wire(new THREE.Vector3(x, 0.06, DIE.z1 - 1.3), new THREE.Vector3(x * 1.12, -0.24, DIE.z1 + 5.4), 0.8 + rnd() * 0.5)
-  }
-  for (let z = DIE.z0 + 5; z < DIE.z1 - 2; z += 2.4) {
-    for (const side of [-1, 1]) {
-      const ex = side < 0 ? DIE.x0 + 1.3 : DIE.x1 - 1.3
-      pads.push(boxAt(0.95, 0.06, 0.95, ex, 0.03, z))
-      wire(new THREE.Vector3(ex, 0.06, z), new THREE.Vector3(ex + side * 5.4, -0.24, z), 0.8 + rnd() * 0.5)
-    }
-  }
-  root.add(new THREE.Mesh(mergeGeometries(pads), metalBright))
-  /* the wires carry a faint light of their own so they read as fine bright
-     filaments against the black rather than dark hoops */
-  const wireMat = new THREE.MeshStandardMaterial({ color: 0xc9d1de, metalness: 0.85, roughness: 0.3, emissive: 0x2a3446, emissiveIntensity: 1 })
-  root.add(new THREE.Mesh(mergeGeometries(wires), wireMat))
-
   /* ------------------------------------------------- the metal stack */
   const steps: THREE.BufferGeometry[] = []
   const stepTops: THREE.BufferGeometry[] = []
@@ -311,6 +290,8 @@ export function buildWorld(scene: THREE.Scene, fp: Floorplan, opts: { aniso: num
   root.add(podTop)
   root.add(edges(podGeo, lineMat))
 
+  await step()
+
   /* ------------------------------------------------- the gate */
   const gy = PODIUM.y
   /* a row of gates wrapped over the fins: square frames, no overhang, so
@@ -344,6 +325,8 @@ export function buildWorld(scene: THREE.Scene, fp: Floorplan, opts: { aniso: num
   fins.castShadow = true
   root.add(fins)
   root.add(new THREE.Mesh(mergeGeometries(finTops), hotBlue))
+
+  await step()
 
   /* ------------------------------------------------- the core */
   const tiers = [
@@ -389,6 +372,8 @@ export function buildWorld(scene: THREE.Scene, fp: Floorplan, opts: { aniso: num
   const coreLight = new THREE.PointLight(0xe2e8ff, 26, 22, 2)
   coreLight.position.set(0, gy + 3.2, CORE.z + 10)
   root.add(coreLight)
+
+  await step()
 
   /* ------------------------------------------------- memory banks */
   const cell = 1.15
@@ -465,6 +450,36 @@ export function buildWorld(scene: THREE.Scene, fp: Floorplan, opts: { aniso: num
   root.add(capMesh)
   root.add(new THREE.Mesh(mergeGeometries(capRings), hotBlue))
 
+  await step()
+
+  /* ------------------------------------------------- pads + bond wires */
+  const pads: THREE.BufferGeometry[] = []
+  const wires: THREE.BufferGeometry[] = []
+  const wire = (a: THREE.Vector3, b: THREE.Vector3, lift: number) => {
+    const mid = a.clone().lerp(b, 0.35)
+    mid.y += lift
+    const curve = new THREE.CatmullRomCurve3([a, mid, b.clone().setY(b.y + 0.05)], false, "centripetal")
+    wires.push(new THREE.TubeGeometry(curve, opts.lite ? 14 : 24, 0.022, opts.lite ? 4 : 6, false))
+  }
+  for (let x = DIE.x0 + 3; x < DIE.x1 - 2; x += 2) {
+    pads.push(boxAt(0.95, 0.06, 0.95, x, 0.03, DIE.z1 - 1.3))
+    wire(new THREE.Vector3(x, 0.06, DIE.z1 - 1.3), new THREE.Vector3(x * 1.12, -0.24, DIE.z1 + 5.4), 0.8 + rnd() * 0.5)
+  }
+  for (let z = DIE.z0 + 5; z < DIE.z1 - 2; z += 2.4) {
+    for (const side of [-1, 1]) {
+      const ex = side < 0 ? DIE.x0 + 1.3 : DIE.x1 - 1.3
+      pads.push(boxAt(0.95, 0.06, 0.95, ex, 0.03, z))
+      wire(new THREE.Vector3(ex, 0.06, z), new THREE.Vector3(ex + side * 5.4, -0.24, z), 0.8 + rnd() * 0.5)
+    }
+  }
+  root.add(new THREE.Mesh(mergeGeometries(pads), metalBright))
+  /* the wires carry a faint light of their own so they read as fine bright
+     filaments against the black rather than dark hoops */
+  const wireMat = new THREE.MeshStandardMaterial({ color: 0xc9d1de, metalness: 0.85, roughness: 0.3, emissive: 0x2a3446, emissiveIntensity: 1 })
+  root.add(new THREE.Mesh(mergeGeometries(wires), wireMat))
+
+  await step()
+
   /* ------------------------------------------------- test-point LEDs */
   const leds: WorldState["leds"] = []
   const ledGeo = new THREE.SphereGeometry(0.13, 16, 12)
@@ -537,16 +552,18 @@ void main(){
   float inGrid = step(length((cell + sign(cell) * 0.5) / 15.0), 0.95);
   float aa = fwidth(p.x * 15.0) * 1.2;
   float street = max(1.0 - smoothstep(0.045, 0.045 + aa, f.x), 1.0 - smoothstep(0.045, 0.045 + aa, f.y));
-  /* thin-film colour shifting across the face */
-  float ang = atan(p.y, p.x);
-  float film = 0.5 + 0.5 * sin(r * 7.0 + ang * 1.6 + uT * 0.12);
-  vec3 base = mix(vec3(0.016, 0.019, 0.03), vec3(0.06, 0.08, 0.16), film * 0.9);
-  float sheen = exp(-pow((p.x * 0.72 + p.y * 0.69 - 0.18) * 2.2, 2.0));
-  base += vec3(0.62, 0.72, 1.0) * sheen * (0.3 + 0.35 * film);
-  base = mix(base, base * 0.5 + vec3(0.2, 0.24, 0.34) * 0.45, street * inGrid * 0.6);
-  base *= mix(0.7, 1.0, inGrid);
-  float rim = smoothstep(0.955, 1.0, r);
-  base += vec3(0.9, 1.05, 1.6) * rim * 1.4;
+  /* polished black silicon: a faint concentric cast, one clean diagonal
+     specular band with a softer second one, and a bright bevelled rim */
+  vec3 base = mix(vec3(0.010, 0.012, 0.020), vec3(0.030, 0.040, 0.075), smoothstep(1.0, 0.0, r));
+  base += vec3(0.010, 0.016, 0.040) * (0.5 + 0.5 * sin(r * 22.0 + uT * 0.08));
+  float d1 = p.x * 0.70 + p.y * 0.71 - 0.12;
+  float band = exp(-d1 * d1 * 42.0);
+  float band2 = exp(-pow(d1 + 0.42, 2.0) * 16.0) * 0.35;
+  base += vec3(0.70, 0.78, 1.00) * (band * 0.55 + band2 * 0.4);
+  base = mix(base, base * 0.55 + vec3(0.16, 0.19, 0.27) * 0.4, street * inGrid * 0.55);
+  base *= mix(0.75, 1.0, inGrid);
+  float rim = smoothstep(0.962, 1.0, r);
+  base += vec3(0.85, 0.95, 1.35) * rim * 1.3;
   gl_FragColor = vec4(base * uBright, 1.0);
 }`,
     fog: false,
@@ -725,11 +742,11 @@ export function updateWorld(
   }
   W.coreLight.intensity = 26 * (1 + focus * 0.6)
 
-  W.wafer.mat.uniforms.uT.value = t
+  W.wafer.mat.uniforms.uT.value = reduce ? 0 : t
   W.wafer.halo.material.opacity = 0.85 + Math.sin(t * 0.3) * 0.1 + focus * 0.2
   ;(W.dust.material as THREE.ShaderMaterial).uniforms.uT.value = reduce ? 0 : t
   for (const h of W.haze) {
     const d = h.userData as { x0: number; sp: number; ph: number }
-    h.position.x = d.x0 + Math.sin(t * d.sp + d.ph) * 6
+    h.position.x = d.x0 + (reduce ? 0 : Math.sin(t * d.sp + d.ph) * 6)
   }
 }

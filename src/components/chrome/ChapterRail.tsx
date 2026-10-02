@@ -16,7 +16,7 @@ const STOPS = [
 export function ChapterRail() {
   const { id } = useChapter()
   return (
-    <nav className={s.rail} aria-label="Chapters">
+    <nav className={s.rail} aria-label="Jump to chapter">
       {STOPS.map((stop) => (
         <a
           key={stop.id}

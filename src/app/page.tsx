@@ -6,6 +6,7 @@ import { ChapterRail } from "@/components/chrome/ChapterRail"
 import { Reticle } from "@/components/chrome/Reticle"
 import { Foreground } from "@/components/chrome/Foreground"
 import { MotionRoot } from "@/components/chrome/MotionRoot"
+import { MotionToggle } from "@/components/chrome/MotionToggle"
 import { Hero } from "@/components/sections/Hero"
 import { About } from "@/components/sections/About"
 import { Work } from "@/components/sections/Work"
@@ -30,6 +31,7 @@ export default function Home() {
       <Nav />
       <ChapterRail />
       <Reticle />
+      <MotionToggle />
       <MotionRoot />
       <div className="page" id="top">
         <main>

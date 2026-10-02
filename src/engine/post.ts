@@ -119,6 +119,16 @@ void main(){
     })
   }
 
+  /** compile every pass up front, one yield apart, so the first real frame
+      does not pay for five shader programs at once */
+  async warm(yieldFn: () => Promise<void>) {
+    for (const m of [this.bright, this.blur, this.up, this.comp]) {
+      this.quad.material = m
+      await this.renderer.compileAsync(this.qScene, this.cam).catch(() => undefined)
+      await yieldFn()
+    }
+  }
+
   setSize(w: number, h: number) {
     this.scene.setSize(w, h)
     this.comp.uniforms.uRes.value.set(w, h)

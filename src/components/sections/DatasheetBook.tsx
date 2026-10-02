@@ -177,6 +177,10 @@ const useNarrow = () =>
 
 export function DatasheetBook() {
   const narrow = useNarrow()
+  const root = useRef<HTMLDivElement>(null)
+  /* until the reader is near, only the cover and contents exist: the eight
+     project pages (diagrams, screens) stay out of the first hydration */
+  const [live, setLive] = useState(false)
   const [spread, setSpread] = useState(0)
   const [turning, setTurning] = useState(-1)
   const leaves = projects.length
@@ -188,6 +192,7 @@ export function DatasheetBook() {
     (next: number) => {
       const n = Math.max(0, Math.min(maxSpread, next))
       if (n === spread) return
+      setLive(true)
       /* the leaf in motion rides above both stacks until it lands */
       setTurning(n > spread ? spread : n)
       setSpread(n)
@@ -196,20 +201,32 @@ export function DatasheetBook() {
   )
 
   useEffect(() => {
+    const el = root.current
+    if (!el || live) return
+    const io = new IntersectionObserver((es) => es.some((e) => e.isIntersecting) && setLive(true), {
+      rootMargin: "1200px 0px",
+    })
+    io.observe(el)
+    return () => io.disconnect()
+    /* narrow swaps the book for the page strip, a different element */
+  }, [live, narrow])
+
+  useEffect(() => {
     if (turning < 0) return
     const t = setTimeout(() => setTurning(-1), 1000)
     return () => clearTimeout(t)
   }, [turning, spread])
 
   const pages: ReactNode[] = [<Cover key="c" />, <Contents key="t" go={go} />]
-  projects.forEach((p, i) => {
-    pages.push(<ProjectFigure key={`${p.slug}-f`} project={p} i={i} />)
-    pages.push(<ProjectSpec key={`${p.slug}-s`} project={p} i={i} />)
-  })
+  if (live)
+    projects.forEach((p, i) => {
+      pages.push(<ProjectFigure key={`${p.slug}-f`} project={p} i={i} />)
+      pages.push(<ProjectSpec key={`${p.slug}-s`} project={p} i={i} />)
+    })
 
   if (narrow) {
     return (
-      <div className={s.track} role="region" aria-label="Project datasheets" tabIndex={0}>
+      <div ref={root} className={s.track} role="region" aria-label="Project datasheets" tabIndex={0}>
         {pages.map((pg, i) => (
           <div key={i} className={s.slot}>
             {pg}
@@ -230,7 +247,7 @@ export function DatasheetBook() {
 
   /* which faces are showing: everything else is inert */
   const leftShown = spread === 0 ? "base-left" : `leaf-${spread - 1}-back`
-  const rightShown = spread === maxSpread ? "base-right" : `leaf-${spread}-front`
+  const rightShown = !live || spread === maxSpread ? "base-right" : `leaf-${spread}-front`
   const face = (key: string, node: ReactNode, cls: string) => {
     const shown = key === leftShown || key === rightShown
     return (
@@ -242,6 +259,7 @@ export function DatasheetBook() {
 
   return (
     <div
+      ref={root}
       className={s.book}
       role="region"
       aria-roledescription="book"
@@ -265,8 +283,8 @@ export function DatasheetBook() {
         }}
       >
         {face("base-left", pages[0], `${s.base} ${s.baseLeft}`)}
-        {face("base-right", pages[TOTAL - 1], `${s.base} ${s.baseRight}`)}
-        {Array.from({ length: leaves }, (_, j) => {
+        {face("base-right", live ? pages[TOTAL - 1] : pages[1], `${s.base} ${s.baseRight}`)}
+        {live && Array.from({ length: leaves }, (_, j) => {
           const flipped = j < spread
           const z = turning === j ? 50 : flipped ? j + 1 : leaves - j + 1
           return (

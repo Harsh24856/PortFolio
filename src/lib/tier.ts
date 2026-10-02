@@ -8,10 +8,10 @@ export function pickTier(): Tier {
   const q = new URLSearchParams(location.search).get("tier")
   if (q === "high" || q === "mid" || q === "low") return q
 
-  const c = document.createElement("canvas")
-  const gl = c.getContext("webgl2")
-  if (!gl) return "low"
-  gl.getExtension("WEBGL_lose_context")?.loseContext()
+  /* a feature check, not a probe context: creating a throwaway WebGL
+     context costs as much as the real one. If the real one then fails, the
+     engine reports it and the poster stays. */
+  if (typeof WebGL2RenderingContext === "undefined") return "low"
 
   const nav = navigator as Navigator & { deviceMemory?: number; connection?: { saveData?: boolean } }
   if (nav.connection?.saveData) return "low"

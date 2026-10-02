@@ -11,6 +11,10 @@
 :global(html.die-ready) .canvas {
   opacity: 1;
 }
+:global(html.die-cut) .canvas {
+  opacity: 0;
+  transition: opacity 0.12s linear;
+}
 :global(html.no-webgl) .canvas {
   display: none;
 }

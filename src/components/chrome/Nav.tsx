@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react"
 import { chapters, profile } from "@/content/profile"
 import { useChapter } from "@/lib/chapter"
 import { Mark } from "./Mark"
+import { MotionToggle } from "./MotionToggle"
 import s from "./Nav.module.css"
 
 export function Nav({ home = true }: { home?: boolean }) {
@@ -74,6 +75,7 @@ export function Nav({ home = true }: { home?: boolean }) {
             <span className={s.lbl}>{c.label}</span>
           </a>
         ))}
+        <MotionToggle placement="menu" />
       </nav>
 
       <button

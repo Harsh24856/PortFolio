@@ -1,0 +1,76 @@
+/* sits under the chapter rail, the other piece of page-wide chrome on the
+   right edge; on narrow screens, where the rail is hidden, bottom right */
+.toggle {
+  position: fixed;
+  right: calc(var(--pad) - 14px);
+  top: calc(50% + 86px);
+  z-index: 46;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--r-sm);
+  color: var(--silver);
+  transition: color 0.3s var(--ease);
+}
+.toggle:hover,
+.toggle:focus-visible {
+  color: var(--white);
+}
+.toggle[aria-pressed="true"] {
+  color: var(--signal);
+}
+.tip {
+  position: absolute;
+  right: 44px;
+  top: 50%;
+  translate: 0 -50%;
+  white-space: nowrap;
+  font-size: 13px;
+  color: var(--white);
+  opacity: 0;
+  pointer-events: none;
+  text-shadow: 0 1px 14px #000;
+  transition: opacity 0.3s var(--ease);
+}
+.toggle:hover .tip,
+.toggle:focus-visible .tip {
+  opacity: 1;
+}
+/* two bars while playing, a triangle while paused */
+.icon {
+  width: 9px;
+  height: 10px;
+  border-left: 3px solid currentColor;
+  border-right: 3px solid currentColor;
+}
+.icon[data-paused] {
+  width: 0;
+  height: 0;
+  border-left: 9px solid currentColor;
+  border-right: 0;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+}
+/* the menu-sheet placement, for narrow screens only */
+.menu {
+  display: none;
+  align-items: center;
+  gap: 12px;
+  margin-top: 28px;
+  min-height: 44px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--silver);
+}
+.menu[aria-pressed="true"] {
+  color: var(--signal);
+}
+@media (max-width: 860px) {
+  .toggle {
+    display: none;
+  }
+  .menu {
+    display: inline-flex;
+  }
+}

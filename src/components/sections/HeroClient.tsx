@@ -1,8 +1,6 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { gsap } from "gsap"
-import { ScrollTrigger } from "gsap/ScrollTrigger"
 import { emit } from "@/lib/bus"
 import s from "./Hero.module.css"
 
@@ -74,8 +72,11 @@ export function LocalTime() {
 export function HeroExit() {
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
-    let ctx: gsap.Context | null = null
-    const build = () => {
+    let ctx: { revert(): void } | null = null
+    let dead = false
+    const build = async () => {
+      const [{ gsap }, { ScrollTrigger }] = await Promise.all([import("gsap"), import("gsap/ScrollTrigger")])
+      if (dead) return
       gsap.registerPlugin(ScrollTrigger)
       ctx = gsap.context(() => {
         const chips = gsap.utils.toArray<HTMLElement>("[data-hero-chips] > a")
@@ -94,9 +95,11 @@ export function HeroExit() {
         if (top) tl.fromTo(top, rest, { ...out, y: -24, duration: 0.5 }, 0.35)
       })
     }
-    window.addEventListener("scroll", build, { once: true, passive: true })
+    const onScroll = () => void build()
+    window.addEventListener("scroll", onScroll, { once: true, passive: true })
     return () => {
-      window.removeEventListener("scroll", build)
+      dead = true
+      window.removeEventListener("scroll", onScroll)
       ctx?.revert()
     }
   }, [])

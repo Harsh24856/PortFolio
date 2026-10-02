@@ -83,7 +83,8 @@
   .grid {
     grid-template-columns: 1fr 1fr;
   }
-  .brand {
+  .brand,
+  .grid > div:last-child {
     grid-column: 1 / -1;
   }
 }

@@ -1,3 +1,5 @@
+import { on } from "@/lib/bus"
+
 /* Cloth, ported from the original template (itself Canvas UI's Cloth taken off
    React). A 96 × 96 height field driven by a damped wave equation, wind
    gusts and a pointer brush, drawn by its own small WebGL2 context per card.
@@ -501,8 +503,9 @@ export function createCloth(
     const width = Math.max(wrapper.clientWidth, 1)
     const height = Math.max(wrapper.clientHeight, 1)
     edge += (edgeTo - edge) * Math.min(delta * 5, 1)
-    chroma += (chromaTo - chroma) * Math.min(delta * (REDUCE ? 60 : 4), 1)
-    if (!REDUCE) {
+    const still = REDUCE || document.documentElement.classList.contains("motion-paused")
+    chroma += (chromaTo - chroma) * Math.min(delta * (still ? 60 : 4), 1)
+    if (!still) {
       const t = simTime
       const target = Math.max(0.55 + 0.35 * Math.sin(t * 0.31 + 1.3) + 0.25 * Math.sin(t * 0.83) * (0.5 + 0.5 * Math.sin(t * 0.17)), 0.15)
       gust += (target - gust) * Math.min(delta * 2, 1)
@@ -523,7 +526,7 @@ export function createCloth(
     compose(width, height)
     draw()
     const settling = Math.abs(chroma - chromaTo) > 0.002 || Math.abs(edge - edgeTo) > 0.002
-    if (!settling && (REDUCE || (config.wind <= 0.001 && energy < 0.004 && touch.s < 0.01))) {
+    if (!settling && (still || (config.wind <= 0.001 && energy < 0.004 && touch.s < 0.01))) {
       running = false
       return
     }
@@ -574,6 +577,8 @@ export function createCloth(
     } else start()
   }
   document.addEventListener("visibilitychange", onHidden)
+  /* a paused loop stops for good; resuming motion has to wake it */
+  const offPause = on("die:pause", ({ paused }) => !paused && start())
 
   syncSize()
   upload()
@@ -605,6 +610,7 @@ export function createCloth(
       wrapper.removeEventListener("pointerleave", onLeave)
       wrapper.removeEventListener("pointercancel", onLeave)
       document.removeEventListener("visibilitychange", onHidden)
+      offPause()
       gl.getExtension("WEBGL_lose_context")?.loseContext()
     },
   }

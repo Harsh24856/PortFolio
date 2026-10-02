@@ -33,7 +33,15 @@ export async function startEngine(canvas: HTMLCanvasElement, opts: { tier: Tier 
   let usePost = opts.tier === "high" && qs.get("post") !== "0"
   const lite = opts.tier !== "high"
   let step = 0
+  const perf = qs.has("perf") ? [] as [string, number][] : null
+  let lastMark = performance.now()
   const report = async () => {
+    if (perf) {
+      const now = performance.now()
+      perf.push([STEPS[Math.min(step, STEPS.length - 1)], Math.round(now - lastMark)])
+      lastMark = now
+      if (step === STEPS.length - 1) console.log("[die] build", JSON.stringify(perf))
+    }
     step++
     emit("die:progress", { p: step / STEPS.length, step: STEPS[Math.min(step, STEPS.length) - 1] })
     await nextFrame()
@@ -70,13 +78,10 @@ export async function startEngine(canvas: HTMLCanvasElement, opts: { tier: Tier 
   const envRT = buildEnvironment(renderer)
   scene.environment = envRT.texture
   scene.environmentIntensity = 0.32
-  const built = buildWorld(scene, fp, { aniso, lite, shadows })
-  await report()
-  await report()
-  await report()
-  await report()
+  /* each stage of the build yields, so no single task holds the main thread
+     and the preloader's step names are the work actually being done */
+  const built = await buildWorld(scene, fp, { aniso, lite, shadows }, report)
   const packets: Packets = buildPackets(scene, fp.routes, lite ? 40 : 80)
-  await report()
   await report()
   const family = getComputedStyle(document.documentElement).getPropertyValue("--font-archivo").trim() || "sans-serif"
   let word: Wordmark | null = null
@@ -90,13 +95,36 @@ export async function startEngine(canvas: HTMLCanvasElement, opts: { tier: Tier 
   let post: Post | null = usePost
     ? new Post(renderer, renderer.domElement.width, renderer.domElement.height, 2)
     : null
-  renderer.compile(scene, camera)
+  /* spread the first frame's cost across yields: upload the big floorplan
+     textures one at a time, compile the scene and the post passes, and bake
+     the shadow map, so no single task holds the main thread for long */
+  const tick = () => new Promise<void>((r) => setTimeout(r, 0))
+  const big: THREE.Texture[] = []
+  scene.traverse((o) => {
+    const m = (o as THREE.Mesh).material as THREE.MeshStandardMaterial | undefined
+    if (m && !Array.isArray(m)) for (const t of [m.map, m.emissiveMap]) if (t && !big.includes(t)) big.push(t)
+  })
+  for (const t of big) {
+    renderer.initTexture(t)
+    await tick()
+  }
+  await renderer.compileAsync(scene, camera).catch(() => renderer.compile(scene, camera))
+  await tick()
+  if (post) await post.warm(tick)
+  if (shadows) {
+    /* one throwaway render bakes the static shadow map off the first frame */
+    renderer.setRenderTarget(post ? post.scene : null)
+    renderer.render(scene, camera)
+    renderer.setRenderTarget(null)
+    await tick()
+  }
   await report()
 
   /* ---------------------------------------------------------- the rig */
   const rig = makeRig()
   const U = built.state.uniforms
   let ready = false
+  let paused = document.documentElement.classList.contains("motion-paused")
   let focusTo = 0
   let focus = 0
   let glowTo = 0
@@ -108,6 +136,7 @@ export async function startEngine(canvas: HTMLCanvasElement, opts: { tier: Tier 
   let raf = 0
   let tPrev = performance.now()
   let clock = 0
+  let ambient = 0
   let lastMove = 0
   const coarse = matchMedia("(pointer: coarse)").matches
   const ptr = new THREE.Vector2(0, 0)
@@ -125,7 +154,7 @@ export async function startEngine(canvas: HTMLCanvasElement, opts: { tier: Tier 
   const resize = () => {
     const w = vpW()
     const h = vpH()
-    renderer.setPixelRatio(Math.min(devicePixelRatio || 1, DPR_CAP) * perf.scale)
+    renderer.setPixelRatio(Math.min(devicePixelRatio || 1, DPR_CAP) * gov.scale)
     renderer.setSize(w, h, true)
     camera.aspect = w / h
     camera.updateProjectionMatrix()
@@ -137,17 +166,17 @@ export async function startEngine(canvas: HTMLCanvasElement, opts: { tier: Tier 
 
   /* trades resolution for frame rate on unknown hardware, and drops the
      bloom chain entirely if that is still not enough */
-  const perf = { scale: 1, acc: 0, n: 0 }
+  const gov = { scale: 1, acc: 0, n: 0 }
   const govern = (raw: number) => {
     if (clock < 2.5 || shot !== null) return
-    perf.acc += raw
-    perf.n++
-    if (perf.n < 40 && perf.acc < 0.9) return
-    const avg = perf.acc / perf.n
-    perf.acc = 0
-    perf.n = 0
-    if (avg > 0.024 && perf.scale > 0.6) {
-      perf.scale = Math.max(0.6, perf.scale * (avg > 0.05 ? 0.66 : 0.86))
+    gov.acc += raw
+    gov.n++
+    if (gov.n < 40 && gov.acc < 0.9) return
+    const avg = gov.acc / gov.n
+    gov.acc = 0
+    gov.n = 0
+    if (avg > 0.024 && gov.scale > 0.6) {
+      gov.scale = Math.max(0.6, gov.scale * (avg > 0.05 ? 0.66 : 0.86))
       resize()
     } else if (avg > 0.03 && post) {
       post.dispose()
@@ -155,8 +184,8 @@ export async function startEngine(canvas: HTMLCanvasElement, opts: { tier: Tier 
       usePost = false
       setDirect()
       resize()
-    } else if (avg < 0.0135 && perf.scale < 1) {
-      perf.scale = Math.min(1, perf.scale + 0.08)
+    } else if (avg < 0.0135 && gov.scale < 1) {
+      gov.scale = Math.min(1, gov.scale + 0.08)
       resize()
     }
   }
@@ -196,6 +225,7 @@ export async function startEngine(canvas: HTMLCanvasElement, opts: { tier: Tier 
       if (ready) startIntro()
     }),
     on("die:focus", ({ index }) => (focusTo = index >= 0 ? 1 : 0)),
+    on("die:pause", ({ paused: p }) => (paused = p)),
     on("die:pulse", () => {
       pulseT = 0
       packets.burst(22)
@@ -204,6 +234,8 @@ export async function startEngine(canvas: HTMLCanvasElement, opts: { tier: Tier 
 
   /* ----------------------------------------------------------- the loop */
   let frames = 0
+  let cutTo = -1
+  let cutAt = 0
   function frame(now: number) {
     if (!running) return
     const raw = (now - tPrev) / 1000 || 0
@@ -213,9 +245,26 @@ export async function startEngine(canvas: HTMLCanvasElement, opts: { tier: Tier 
     govern(raw)
 
     rig.prog = progressFor(rig, scrollY)
-    rig.smooth = reduce ? rig.prog : damp(rig.smooth, rig.prog, 5.2, dt)
-    rig.mx = damp(rig.mx, coarse ? 0 : rig.tmx, 2.6, dt)
-    rig.my = damp(rig.my, coarse ? 0 : rig.tmy, 2.6, dt)
+    if (reduce) {
+      /* no flight: the camera cuts between chapter waypoints behind a short
+         dip to black, and never drifts with the pointer */
+      const to = Math.round(rig.prog)
+      if (to !== cutTo) {
+        cutTo = to
+        cutAt = now
+        document.documentElement.classList.add("die-cut")
+      }
+      if (cutAt && now - cutAt > 140) {
+        rig.smooth = cutTo
+        cutAt = 0
+        requestAnimationFrame(() => document.documentElement.classList.remove("die-cut"))
+      }
+      rig.mx = rig.my = 0
+    } else {
+      rig.smooth = damp(rig.smooth, rig.prog, 5.2, dt)
+      rig.mx = damp(rig.mx, coarse ? 0 : rig.tmx, 2.6, dt)
+      rig.my = damp(rig.my, coarse ? 0 : rig.tmy, 2.6, dt)
+    }
     if (intro0) {
       const el = (now - intro0) / 1000
       rig.intro = reduce ? 1 : sat(el / 2.6)
@@ -225,7 +274,8 @@ export async function startEngine(canvas: HTMLCanvasElement, opts: { tier: Tier 
 
     /* the cursor's light on the die: where the pointer ray meets the metal,
        or a slow scanner sweeping the frame on touch screens */
-    if (coarse || performance.now() - lastMove > 6000) {
+    const still = reduce || paused
+    if (!still && (coarse || performance.now() - lastMove > 6000)) {
       const a = clock * 0.23
       ptr.set(Math.sin(a) * 0.55, -0.35 + Math.sin(a * 1.7) * 0.25)
       glowTo = coarse ? 0.65 : glowTo * 0.995
@@ -245,8 +295,9 @@ export async function startEngine(canvas: HTMLCanvasElement, opts: { tier: Tier 
       U.uPulseA.value = Math.max(0, 1 - pulseT / 2.2)
       if (pulseT > 2.4) pulseT = -1
     }
-    updateWorld(built.state, built.cellSize, clock, dt, focus, reduce)
-    packets.update(dt, reduce)
+    if (!still) ambient += dt
+    updateWorld(built.state, built.cellSize, ambient, dt, focus, still)
+    packets.update(dt, still)
     if (word) {
       let reveal = 0
       if (intro0) reveal = reduce || shot !== null ? 1.4 : Math.min(1.4, (now - intro0) / 1600)
@@ -267,6 +318,10 @@ export async function startEngine(canvas: HTMLCanvasElement, opts: { tier: Tier 
       renderer.render(scene, camera)
     }
 
+    if (perf && frames < 2) {
+      perf.push([`frame ${frames}`, Math.round(performance.now() - now)])
+      if (frames === 1) console.log("[die] first frames", JSON.stringify(perf.slice(-2)))
+    }
     if (!ready && ++frames >= 2) {
       ready = true
       document.documentElement.classList.add("die-ready")

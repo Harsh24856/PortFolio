@@ -1,4 +1,3 @@
-import { gsap } from "gsap"
 
 const reduced = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches
 
@@ -15,10 +14,7 @@ function release(pre: HTMLElement | null) {
    a scan line, and the scan sweeps up the frame as the overlay lifts; the
    engine is told to start depositing the wordmark at the same instant, and
    the headline rises a beat later. */
-export function runIntro(pre: HTMLElement | null, handover: () => void) {
-  /* real time even when frames are slow: lag smoothing would otherwise
-     stretch the handover on a weak device until it looked broken */
-  gsap.ticker.lagSmoothing(0)
+export async function runIntro(pre: HTMLElement | null, handover: () => void) {
   const instant = new URLSearchParams(location.search).has("shot")
   if (!pre || reduced() || instant) {
     handover()
@@ -26,6 +22,19 @@ export function runIntro(pre: HTMLElement | null, handover: () => void) {
     release(pre)
     return
   }
+  /* GSAP is only needed from here on, so it is not in the first download */
+  let gsap: typeof import("gsap").gsap
+  try {
+    gsap = (await import("gsap")).gsap
+  } catch {
+    handover()
+    revealHero()
+    release(pre)
+    return
+  }
+  /* real time even when frames are slow: lag smoothing would otherwise
+     stretch the handover on a weak device until it looked broken */
+  gsap.ticker.lagSmoothing(0)
   const inner = pre.firstElementChild as HTMLElement | null
   const scan = pre.querySelector<HTMLElement>("[data-scan]")
   const bar = pre.querySelector<HTMLElement>("[data-bar]")

@@ -6,6 +6,7 @@ import { ViewTransition } from "react"
 import { getProject, projects } from "@/content/projects"
 import { Nav } from "@/components/chrome/Nav"
 import { Reticle } from "@/components/chrome/Reticle"
+import { MotionToggle } from "@/components/chrome/MotionToggle"
 import { Backdrop } from "@/components/scene/Backdrop"
 import { ArchitectureDiagram } from "@/components/ui/ArchitectureDiagram"
 import { Footer } from "@/components/sections/Footer"
@@ -44,6 +45,7 @@ export default async function CaseStudy({ params }: { params: Promise<{ slug: st
       <Backdrop />
       <Nav home={false} />
       <Reticle />
+      <MotionToggle />
       <div className="page">
         <main id="case" className={s.main}>
           <header className={s.head}>
@@ -105,7 +107,7 @@ export default async function CaseStudy({ params }: { params: Promise<{ slug: st
               <h2 id="arch-h" className={`${s.h2} mono`}>
                 Architecture
               </h2>
-              <div className={s.arch}>
+              <div className={s.arch} role="region" aria-label={`${p.name} architecture diagram`} tabIndex={0}>
                 <ArchitectureDiagram project={p} idPrefix={`case-${p.slug}`} />
               </div>
               <ul className={`${s.legend} mono`} aria-label="Legend">

@@ -66,7 +66,7 @@
   font-size: 16px;
   color: var(--white);
   background: rgba(244, 245, 247, 0.03);
-  border: 1px solid var(--line-strong);
+  border: 1px solid rgba(244, 245, 247, 0.42);
   border-radius: var(--r-sm);
   padding: 13px 14px;
   transition: border-color 0.25s var(--ease), background 0.25s var(--ease);
@@ -80,7 +80,7 @@
 }
 .field input:hover,
 .field textarea:hover {
-  border-color: rgba(244, 245, 247, 0.42);
+  border-color: rgba(244, 245, 247, 0.62);
 }
 .field input:focus-visible,
 .field textarea:focus-visible {

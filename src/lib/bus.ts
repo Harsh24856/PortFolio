@@ -13,6 +13,8 @@ export type BusEvents = {
   "die:intro": Record<string, never>
   /** a chapter chip or toolkit row is focused; -1 clears */
   "die:focus": { index: number }
+  /** the reader paused or resumed the scene's ambient motion */
+  "die:pause": { paused: boolean }
   /** a message was sent: fire a signal off the edge of the die */
   "die:pulse": Record<string, never>
 }
