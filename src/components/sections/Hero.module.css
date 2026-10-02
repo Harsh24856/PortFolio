@@ -59,24 +59,10 @@
   gap: 8px;
   text-align: right;
 }
-.hint {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 14px;
-  color: var(--white);
-}
 .coord {
   margin: 0 8px;
   color: var(--steel);
 }
-/* there is nothing to type on without a keyboard */
-@media (hover: none), (pointer: coarse) {
-  .hint {
-    display: none;
-  }
-}
-
 /* the 3D wordmark's stand-in when there is no WebGL */
 .wordFallback {
   display: none;

@@ -6,9 +6,9 @@ A 65% mechanical keyboard, built entirely in code, that the page takes apart as 
 |---|---------|---------------------|
 | 00 | Index | Sits at three-quarters over a giant HARSH wordmark, and types the name on arrival |
 | 01 | About | Who I am, then five strengths walked one at a time while the board pulls apart behind them |
-| 02 | Toolkit | Seen from above; each toolkit tab lights its cluster of keys and prints the tools' names on them |
+| 02 | Toolkit | Seen from above; each of four tabs lights one row of keys and prints the tools' names on them |
 | 03 | Work | A macro pass low over the caps, behind the cloth project cards |
-| 04 | Datasheets | Side on, half the board opened up in x-ray, behind a notebook of white spec sheets; rest on the right-hand page for five seconds to turn it |
+| 04 | Datasheets | Side on, half the board opened up in x-ray, behind a notebook of white spec sheets; rest on a page for five seconds to turn it (right forward, left back), with a switch to turn that off |
 | 05 | Contact | Every key you type, the board types too; sending the form runs a wave out from Enter |
 
 The real keyboard drives the drawn one everywhere on the page. Black, white and a little blue. Blue is light, never fill: it marks what is live.

@@ -8,9 +8,9 @@ import { Mark } from "./Mark"
 import { MotionToggle } from "./MotionToggle"
 import s from "./Nav.module.css"
 
-/* The top bar, as on a product page: the name on the left, a menu and the
-   one call to action on the right. The menu opens a full sheet of numbered
-   chapters. */
+/* The top bar: the name on the left, the chapters inline in the middle,
+   the one call to action on the right. Below desktop width the chapters
+   fold into a Menu button that opens a full sheet. */
 export function Nav({ home = true }: { home?: boolean }) {
   const { id } = useChapter()
   const [open, setOpen] = useState(false)
@@ -32,11 +32,15 @@ export function Nav({ home = true }: { home?: boolean }) {
         burger.current?.focus()
       }
     }
+    /* the sheet only exists below desktop width, where the links fold away */
+    const onResize = () => window.innerWidth >= 1024 && setOpen(false)
     document.documentElement.classList.add("nav-open")
     window.addEventListener("keydown", onKey)
+    window.addEventListener("resize", onResize)
     return () => {
       document.documentElement.classList.remove("nav-open")
       window.removeEventListener("keydown", onKey)
+      window.removeEventListener("resize", onResize)
     }
   }, [open])
 
@@ -49,6 +53,20 @@ export function Nav({ home = true }: { home?: boolean }) {
         <b>{profile.name}</b>
         <span className="tag">SWE / AI</span>
       </Link>
+
+      <nav className={s.links} aria-label="Main">
+        {chapters.map((c) => (
+          <a
+            key={c.id}
+            className={s.link}
+            href={href(c.id)}
+            aria-current={home && id === c.id ? "true" : undefined}
+            data-cursor
+          >
+            {c.label}
+          </a>
+        ))}
+      </nav>
 
       <div className={s.right}>
         <button
@@ -71,7 +89,7 @@ export function Nav({ home = true }: { home?: boolean }) {
         </a>
       </div>
 
-      <nav id="site-menu" className={s.sheet} aria-label="Sections" hidden={!open}>
+      <nav id="site-menu" className={s.sheet} aria-label="Menu" hidden={!open}>
         <ol className={s.list}>
           <li>
             <a href={home ? "#top" : "/"} onClick={() => setOpen(false)} data-cursor>

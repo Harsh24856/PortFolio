@@ -80,12 +80,12 @@
   padding: 0;
   display: flex;
   flex-wrap: wrap;
-  gap: 6px 22px;
+  gap: 8px 20px;
 }
 .panel li {
-  display: grid;
-  font-size: 14px;
+  font-size: 15px;
   line-height: 1.35;
+  color: var(--white);
 }
 .panel b {
   font-weight: 450;

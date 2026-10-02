@@ -11,15 +11,18 @@ const smooth = (a: number, b: number, x: number) => {
 }
 
 /* The pinned stretch of the About chapter. Scrolling through it walks the
-   list of strengths one at a time, and the board behind comes apart and
-   seats again as it goes. The gauge on the right counts the list. */
+   list of strengths one at a time, and the board behind opens a little
+   further with each one, then seats again at the end. The gauge on the right counts the list. */
 export function AboutPin({ children, count }: { children: ReactNode; count: number }) {
   const [at, setAt] = useState(-1)
   const last = useRef(-1)
   const ref = usePinProgress<HTMLElement>((p) => {
-    const e = smooth(0.02, 0.22, p) * (1 - smooth(0.86, 0.99, p))
+    /* each strength opens the board a little further: the walk through the
+       list runs from the top of the pin to 86%, then the board seats again */
+    const walk = Math.min(1, Math.max(0, (p - 0.02) / 0.84))
+    const item = p < 0.02 ? -1 : Math.min(count - 1, Math.floor(walk * count))
+    const e = walk * (1 - smooth(0.9, 0.995, p))
     emit("scene:assembly", { e })
-    const item = e < 0.02 ? -1 : Math.min(count - 1, Math.floor(smooth(0.12, 0.88, p) * count))
     if (item !== last.current) {
       last.current = item
       setAt(item)

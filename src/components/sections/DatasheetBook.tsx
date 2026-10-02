@@ -13,6 +13,8 @@ const partNo = (p: Project, i: number) => `HS-${p.year.slice(2)}${String(i + 1).
 const TOTAL = 2 + projects.length * 2
 /** how long the pointer rests on the right-hand page before it turns */
 const DWELL_MS = 5000
+const AUTO_KEY = "book:auto-turn"
+type Side = "left" | "right"
 
 /* ------------------------------------------------------------ the pages */
 
@@ -176,6 +178,36 @@ function ProjectSpec({ project, i }: { project: Project; i: number }) {
 
 /* -------------------------------------------------------------- the book */
 
+/* whether resting on a page turns it: on by default, remembered once the
+   reader switches it off */
+let autoMem = true
+const autoListeners = new Set<() => void>()
+const readAuto = () => {
+  try {
+    return localStorage.getItem(AUTO_KEY) !== "0"
+  } catch {
+    return autoMem
+  }
+}
+const setAutoTurn = (on: boolean) => {
+  autoMem = on
+  try {
+    localStorage.setItem(AUTO_KEY, on ? "1" : "0")
+  } catch {
+    /* storage unavailable: the choice lasts for this visit */
+  }
+  autoListeners.forEach((l) => l())
+}
+const useAutoTurn = () =>
+  useSyncExternalStore(
+    (fn) => {
+      autoListeners.add(fn)
+      return () => autoListeners.delete(fn)
+    },
+    readAuto,
+    () => true,
+  )
+
 const query = "(max-width: 900px)"
 const subscribeMq = (fn: () => void) => {
   const mq = window.matchMedia(query)
@@ -201,9 +233,12 @@ export function DatasheetBook() {
   const maxSpread = leaves
   const swipe = useRef<{ x: number; id: number } | null>(null)
   const stage = useRef<HTMLDivElement>(null)
-  /* resting the pointer on the right-hand page for a few seconds turns it */
-  const [resting, setResting] = useState(0)
+  /* resting the pointer on a page for a few seconds turns it: the right
+     page forward, the left page back. It can be switched off. */
+  const [resting, setResting] = useState<{ key: number; side: Side } | null>(null)
   const restTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const restSide = useRef<Side | null>(null)
+  const autoTurn = useAutoTurn()
 
   const go = useCallback(
     (next: number) => {
@@ -228,9 +263,12 @@ export function DatasheetBook() {
     /* narrow swaps the book for the page strip, a different element */
   }, [live, narrow])
 
-  useEffect(() => () => {
-    if (restTimer.current) clearTimeout(restTimer.current)
-  }, [])
+  useEffect(
+    () => () => {
+      if (restTimer.current) clearTimeout(restTimer.current)
+    },
+    [],
+  )
 
   useEffect(() => {
     if (turning < 0) return
@@ -260,24 +298,34 @@ export function DatasheetBook() {
   const stopRest = () => {
     if (restTimer.current) clearTimeout(restTimer.current)
     restTimer.current = null
-    setResting(0)
+    restSide.current = null
+    setResting(null)
   }
   const onStageMove = (e: React.PointerEvent) => {
-    if (e.pointerType !== "mouse") return
+    if (e.pointerType !== "mouse" || !autoTurn) return
     const r = stage.current?.getBoundingClientRect()
-    const onRight = !!r && e.clientX > r.left + r.width / 2 && spread < maxSpread
-    if (!onRight) {
+    if (!r) return
+    const side: Side = e.clientX > r.left + r.width / 2 ? "right" : "left"
+    const can = side === "right" ? spread < maxSpread : spread > 0
+    if (!can) {
       if (restTimer.current) stopRest()
       return
     }
-    if (restTimer.current) return
+    if (restTimer.current && restSide.current === side) return
+    if (restTimer.current) clearTimeout(restTimer.current)
+    restSide.current = side
     /* a fresh key restarts the fill animation for each rest */
-    setResting(Date.now())
+    setResting({ key: Date.now(), side })
     restTimer.current = setTimeout(() => {
       restTimer.current = null
-      setResting(0)
-      go(spread + 1)
+      restSide.current = null
+      setResting(null)
+      go(spread + (side === "right" ? 1 : -1))
     }, DWELL_MS)
+  }
+  const toggleAutoTurn = () => {
+    if (autoTurn) stopRest()
+    setAutoTurn(!autoTurn)
   }
 
   /* which faces are showing: everything else is inert */
@@ -347,9 +395,10 @@ export function DatasheetBook() {
           />
         )}
         <div
-          key={resting}
+          key={resting?.key ?? 0}
           className={s.dwell}
-          data-on={resting > 0 || undefined}
+          data-on={resting ? "" : undefined}
+          data-side={resting?.side ?? "right"}
           style={{ "--dwell": `${DWELL_MS}ms` } as React.CSSProperties}
           aria-hidden="true"
         >
@@ -361,12 +410,25 @@ export function DatasheetBook() {
         <button type="button" className={s.ctl} onClick={() => go(spread - 1)} disabled={spread === 0} data-cursor>
           Previous page
         </button>
-        <p className={`${s.where} mono`} aria-live="polite">
-          {spread === 0 ? "Cover" : projects[spread - 1].name}
-          <span>
-            {spread + 1} / {maxSpread + 1}
-          </span>
-        </p>
+        <div className={s.mid}>
+          <p className={`${s.where} mono`} aria-live="polite">
+            {spread === 0 ? "Cover" : projects[spread - 1].name}
+            <span>
+              {spread + 1} / {maxSpread + 1}
+            </span>
+          </p>
+          <button
+            type="button"
+            className={s.auto}
+            aria-pressed={autoTurn}
+            onClick={toggleAutoTurn}
+            title="Rest the pointer on a page for five seconds to turn it"
+            data-cursor
+          >
+            <i aria-hidden="true" />
+            Turn pages on rest
+          </button>
+        </div>
         <button
           type="button"
           className={s.ctl}

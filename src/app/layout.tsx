@@ -19,7 +19,7 @@ const b612 = B612_Mono({
 })
 
 const description =
-  "Harsh Sehra builds web, mobile and machine learning products end to end for early-stage startups: interface, API, data and the models on top. Based in Chandigarh, India."
+  "Harsh Sehra builds web, mobile and generative AI products end to end for early-stage startups: interface, API, data and the models on top. Based in Chandigarh, India."
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),

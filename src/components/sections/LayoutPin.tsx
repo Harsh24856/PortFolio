@@ -4,17 +4,15 @@ import { useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from 
 import { emit } from "@/lib/bus"
 import { usePinProgress } from "@/lib/pin"
 import { toolGroups } from "@/content/toolkit"
-import { projects } from "@/content/projects"
 import s from "./Toolkit.module.css"
 
 const N = toolGroups.length
-const projectName = (slug: string) => projects.find((p) => p.slug === slug)?.name ?? slug
 const reduced = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches
 
 /* The pinned stretch of the toolkit chapter: one step of scroll per group.
    The tabs and the scroll are one control: choosing a tab scrolls to its
    step, and scrolling to a step selects its tab. */
-export function LayoutPin({ head, foot }: { head: ReactNode; foot: ReactNode }) {
+export function LayoutPin({ head }: { head: ReactNode }) {
   const [active, setActive] = useState(0)
   const tabs = useRef<(HTMLButtonElement | null)[]>([])
   const ref = usePinProgress<HTMLElement>((p) => setActive(Math.min(N - 1, Math.floor(p * N * 0.999))))
@@ -68,19 +66,13 @@ export function LayoutPin({ head, foot }: { head: ReactNode; foot: ReactNode }) 
               >
                 <span className={`${s.tabN} num`}>{String(i + 1).padStart(2, "0")}</span>
                 <b>{grp.name}</b>
-                <span className="tag">
-                  {grp.tools.length} {grp.tools.length === 1 ? "tool" : "tools"}
-                </span>
               </button>
             ))}
           </div>
           <div id="tool-panel" role="tabpanel" aria-labelledby={`tab-${active}`} className={s.panel}>
             <ul>
               {g.tools.map((t) => (
-                <li key={t.name}>
-                  <b>{t.name}</b>
-                  <span>{t.used.map(projectName).join(", ")}</span>
-                </li>
+                <li key={t}>{t}</li>
               ))}
             </ul>
           </div>
@@ -91,7 +83,6 @@ export function LayoutPin({ head, foot }: { head: ReactNode; foot: ReactNode }) 
           </p>
           <p className="tag">Tools lit</p>
         </div>
-        {foot}
       </div>
     </section>
   )

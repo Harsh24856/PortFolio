@@ -1,5 +1,4 @@
 import { Heading } from "@/components/ui/Heading"
-import { alsoFluent } from "@/content/toolkit"
 import { LayoutPin } from "./LayoutPin"
 import s from "./Toolkit.module.css"
 
@@ -16,15 +15,10 @@ export function Toolkit() {
           </p>
           <Heading id="tools-h" lines={["The tools", "I reach for."]} />
           <p className="body on-scene" data-reveal-fade>
-            What each shipped project actually ran on, grouped by where it sits in the stack. Choose a group, or keep
-            scrolling, and its tools light up on the board below.
+            Everything I build with, grouped by where it sits in the stack. Choose a group, or keep scrolling, and its
+            tools light up on the board below.
           </p>
         </div>
-      }
-      foot={
-        <p className={`${s.also} on-scene`}>
-          <span className="tag">Also fluent</span> {alsoFluent.join(", ")}
-        </p>
       }
     />
   )

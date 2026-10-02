@@ -97,7 +97,7 @@ export async function startEngine(canvas: HTMLCanvasElement, opts: { tier: Tier 
   const family = getComputedStyle(document.documentElement).getPropertyValue("--font-archivo").trim() || "sans-serif"
   const kb = await buildKeyboard(
     scene,
-    { aniso, shadows, family, toolNames: toolGroups.map((g) => g.tools.map((t) => t.name)) },
+    { aniso, shadows, family, toolNames: toolGroups.map((g) => g.tools) },
     report,
   )
   const back = await buildBackdrop(scene, family)

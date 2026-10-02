@@ -17,7 +17,10 @@
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));
+  background: rgba(0, 0, 0, 0.78);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--line-soft);
   opacity: 0;
   transition: opacity 0.45s var(--ease);
 }
@@ -47,6 +50,50 @@
   color: var(--silver);
 }
 
+/* the chapters, inline: the current one is underlined in blue */
+.links {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: clamp(18px, 2.4vw, 36px);
+  margin-left: auto;
+  margin-right: clamp(8px, 1.6vw, 24px);
+}
+.link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-size: 14.5px;
+  color: var(--silver);
+  white-space: nowrap;
+  transition: color 0.3s var(--ease);
+}
+.link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 8px;
+  height: 1px;
+  background: var(--signal);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.5s var(--ease-out);
+}
+.link:hover,
+.link[aria-current] {
+  color: var(--white);
+}
+.link:hover::after,
+.link[aria-current]::after {
+  transform: none;
+}
+.menuBtn {
+  display: none;
+}
+
 .right {
   position: relative;
   z-index: 3;
@@ -54,8 +101,15 @@
   align-items: center;
   gap: 10px;
 }
+@media (max-width: 1023px) {
+  .links {
+    display: none;
+  }
+  .menuBtn {
+    display: inline-flex;
+  }
+}
 .menuBtn {
-  display: inline-flex;
   align-items: center;
   gap: 12px;
   min-height: 44px;

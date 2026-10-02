@@ -26,10 +26,10 @@ A product page for a person, with a 65% mechanical keyboard as the product.
 | # | Section | Behaviour |
 |---|---------|-----------|
 | 00 | Hero | Three-quarter view; left quarter in x-ray; HARSH behind. The board types H-A-R-S-H on arrival. |
-| 01 | About | Pinned. Copy about me, then five strengths walked one at a time with a count on the right; the board parts and reseats behind. |
+| 01 | About | Pinned. Copy about me, then five strengths walked one at a time with a count on the right; the board opens one gap further with each, then reseats. |
 | 02 | Toolkit | Pinned, top-down. The toolkit tablist and scroll are one control; the chosen group's keys light and show tool names. |
 | 03 | Work | Macro pass over the caps behind the cloth project cards. |
-| 04 | Datasheets | Side view with half the board in x-ray. The book is white paper with black ink and blue accents behind a black cover; resting on the right-hand page for 5 s turns it, with a blue rule filling as it counts. |
+| 04 | Datasheets | Side view with half the board in x-ray. The book is white paper with black ink and blue accents behind a black cover; resting on a page for 5 s turns it (right forward, left back), with a blue rule filling as it counts and a switch to turn it off. |
 | 05 | Contact | Real keystrokes press their twins on the board; sending a message runs a wave out from Enter. |
 
 ## Kept from before

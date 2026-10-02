@@ -599,10 +599,17 @@ export async function buildKeyboard(
   const update = (f: Frame) => {
     const dt = Math.min(f.dt, 1 / 30)
     explode = damp(explode, f.explode, 6, f.dt)
-    /* the layers part with a little stagger, the caps last and furthest */
-    for (let l = 0; l < LAYERS.length; l++) {
-      const s = clamp(explode * 1.18 - (LAYERS.length - 1 - l) * 0.045, 0, 1)
-      lift[l] = l * LAYER_GAP * s * s * (3 - 2 * s)
+    /* the board opens one gap at a time from the top: the caps lift off
+       first, then the case, then the switches, then the diffuser, so each
+       step of the scroll opens it a little further */
+    const G = LAYERS.length - 1
+    let acc = 0
+    lift[0] = 0
+    layers[LAYERS[0]].position.y = 0
+    for (let l = 1; l < LAYERS.length; l++) {
+      const g = clamp(explode * G - (G - l), 0, 1)
+      acc += LAYER_GAP * g * g * (3 - 2 * g)
+      lift[l] = acc
       layers[LAYERS[l]].position.y = lift[l]
     }
     /* breathing light in the diffuser */

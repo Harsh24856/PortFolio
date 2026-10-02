@@ -1,6 +1,6 @@
 export const profile = {
   name: "Harsh Sehra",
-  role: "Full-stack and applied AI engineer",
+  role: "Full-stack and generative AI engineer",
   location: "Chandigarh, India",
   email: "harshsehra1@gmail.com",
   github: { handle: "Harsh24856", href: "https://github.com/Harsh24856" },
@@ -32,9 +32,9 @@ export const strengths = [
     note: "Cross-platform apps from a single codebase, with live maps and real-time updates where they matter.",
   },
   {
-    title: "Applied machine learning",
-    tag: "Python, TensorFlow",
-    note: "Models that earn their place in a product, from engine fault detection to document OCR.",
+    title: "Generative AI and ML",
+    tag: "LLMs, Python, TensorFlow",
+    note: "LLM features and models that earn their place in a product, from engine fault detection to document OCR.",
   },
   {
     title: "Backends and data",

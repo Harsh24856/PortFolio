@@ -96,14 +96,14 @@ export const keyIndex = new Map(KEYS.map((k, i) => [k.code, i]))
 /** a key's centre on the board, in world units, board centred on the origin */
 export const keyCenter = (k: KeyDef) => ({ x: k.x + k.w / 2 - BOARD_W / 2, z: k.row + 0.5 - BOARD_D / 2 })
 
-/* The toolkit's groups, each wired to a cluster of keys that light up and
-   take the tools' names when its tab is chosen. Order matches the content
-   file's groups. */
+/* The toolkit's groups, each wired to a row of keys that light up and
+   take the tools' names when its tab is chosen: AI on the number row, then
+   the three letter rows. Order matches the content file's groups. */
 export const TOOL_KEYS: string[][] = [
-  ["Digit1", "Digit2", "Digit3", "Digit4", "Digit5"],
-  ["ArrowLeft", "ArrowUp", "ArrowRight"],
-  ["KeyY", "KeyU", "KeyI", "KeyO", "KeyP", "BracketLeft"],
-  ["KeyA", "KeyS", "KeyD", "KeyF"],
+  ["Digit1", "Digit2", "Digit3", "Digit4", "Digit5", "Digit6", "Digit7", "Digit8", "Digit9", "Digit0"],
+  ["KeyQ", "KeyW", "KeyE", "KeyR", "KeyT", "KeyY", "KeyU", "KeyI"],
+  ["KeyA", "KeyS", "KeyD", "KeyF", "KeyG", "KeyH", "KeyJ", "KeyK", "KeyL"],
+  ["KeyZ", "KeyX", "KeyC", "KeyV", "KeyB", "KeyN", "KeyM"],
 ]
 
 /* The physical layers, bottom up, as the assembly chapter names them. */

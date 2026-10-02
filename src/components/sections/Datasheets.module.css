@@ -433,8 +433,8 @@
   height: 52px;
 }
 
-/* resting on the right-hand page turns it: a blue rule fills along the
-   foot of the page for the five seconds before it goes */
+/* resting on a page turns it: a blue rule fills along the foot of that
+   page for the five seconds before it goes, toward the edge it turns from */
 .dwell {
   position: absolute;
   left: 50%;
@@ -445,6 +445,14 @@
   border-radius: 0 0 var(--r-lg) 0;
   overflow: hidden;
   pointer-events: none;
+}
+.dwell[data-side="left"] {
+  left: 0;
+  right: 50%;
+  border-radius: 0 0 0 var(--r-lg);
+}
+.dwell[data-side="left"] i {
+  transform-origin: right;
 }
 .dwell i {
   display: block;
@@ -484,9 +492,58 @@
   opacity: 0.35;
   cursor: default;
 }
+.mid {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+}
 .where {
   display: flex;
   gap: 14px;
+  color: var(--white);
+}
+/* the switch for turning on rest */
+.auto {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 0 4px;
+  font-size: 13.5px;
+  color: var(--silver);
+  transition: color 0.3s var(--ease);
+}
+.auto i {
+  position: relative;
+  width: 26px;
+  height: 14px;
+  border-radius: 7px;
+  border: 1px solid var(--line-strong);
+  transition: border-color 0.3s var(--ease), background 0.3s var(--ease);
+}
+.auto i::after {
+  content: "";
+  position: absolute;
+  left: 2px;
+  top: 2px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--silver);
+  transition: transform 0.3s var(--ease-out), background 0.3s var(--ease);
+}
+.auto[aria-pressed="true"] {
+  color: var(--white);
+}
+.auto[aria-pressed="true"] i {
+  border-color: var(--signal);
+  background: rgba(47, 91, 255, 0.25);
+}
+.auto[aria-pressed="true"] i::after {
+  transform: translateX(12px);
+  background: var(--signal);
+}
+.auto:hover {
   color: var(--white);
 }
 .where span {

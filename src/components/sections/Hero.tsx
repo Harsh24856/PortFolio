@@ -11,7 +11,7 @@ export function Hero() {
         <h1 id="hero-h" className="display h1 on-scene">
           <span className="sr-only">Harsh Sehra. </span>
           <span className="mask-line">
-            <span style={{ "--i": 0 } as React.CSSProperties}>Full-stack and applied AI,</span>
+            <span style={{ "--i": 0 } as React.CSSProperties}>Full-stack and generative AI,</span>
           </span>
           <span className="mask-line">
             <span style={{ "--i": 1 } as React.CSSProperties}>built end to end.</span>
@@ -35,10 +35,6 @@ export function Hero() {
           </a>
         </div>
         <div className={`${s.readout} on-scene`} data-reveal-fade data-hero-fade>
-          <p className={s.hint}>
-            <span className="live" aria-hidden="true" />
-            Type anything. The board types with you.
-          </p>
           <p className="tag">
             Chandigarh, IN <span className={s.coord}>30.73° N 76.78° E</span> <LocalTime />
           </p>
