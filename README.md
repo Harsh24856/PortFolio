@@ -5,10 +5,10 @@ A 65% mechanical keyboard, built entirely in code, that the page takes apart as 
 | # | Chapter | What the board does |
 |---|---------|---------------------|
 | 00 | Index | Sits at three-quarters over a giant HARSH wordmark, and types the name on arrival |
-| 01 | Assembly | Pulls apart into five layers (tray, diffuser, switches, top case, keycaps), each one layer of how I build, with the separation read out in mm |
-| 02 | Layout | Seen from above; each toolkit tab lights its cluster of keys and prints the tools' names on them |
+| 01 | About | Who I am, then five strengths walked one at a time while the board pulls apart behind them |
+| 02 | Toolkit | Seen from above; each toolkit tab lights its cluster of keys and prints the tools' names on them |
 | 03 | Work | A macro pass low over the caps, behind the cloth project cards |
-| 04 | Datasheets | Side on, half the board opened up in x-ray |
+| 04 | Datasheets | Side on, half the board opened up in x-ray, behind a notebook of white spec sheets; rest on the right-hand page for five seconds to turn it |
 | 05 | Contact | Every key you type, the board types too; sending the form runs a wave out from Enter |
 
 The real keyboard drives the drawn one everywhere on the page. Black, white and a little blue. Blue is light, never fill: it marks what is live.
@@ -20,7 +20,7 @@ The real keyboard drives the drawn one everywhere on the page. Black, white and 
 | `src/app/page.tsx` | The home page: server-rendered sections over the scene |
 | `src/app/work/[slug]/` | Case studies, statically generated from `src/content/projects.ts` |
 | `src/content/` | The single source of truth: profile, projects (with architecture graphs), toolkit matrix |
-| `src/components/sections/` | Hero, Assembly (pinned, explodes the board), Layout (pinned toolkit tabs), Work (cloth cards), Datasheets (page-turning book with an X-ray loupe), Contact, Footer |
+| `src/components/sections/` | Hero, About (pinned, walks the strengths), Toolkit (pinned tabs), Work (cloth cards), Datasheets (page-turning book with an X-ray loupe), Contact, Footer |
 | `src/components/chrome/` | Nav with menu sheet, numbered chapter rail, preloader, reticle cursor, motion toggle |
 | `src/engine/` | The WebGL keyboard, plain TypeScript with no React: board layout, keycap geometry, legend atlas, case layers and x-ray cut, hex backdrop with chapter words, camera rig, post-processing, cloth |
 | `src/lib/bus.ts` | The only link between the page and the engine: typed window events |

@@ -13,8 +13,8 @@ export function Datasheets() {
           <Heading id="ds-h" lines={["Datasheets."]} />
         </div>
         <p className="body on-scene" data-reveal-fade>
-          Each project documented like a part: what it does, what it runs on and how it is wired. Rest on a page corner
-          to turn it, and drag the loupe over a screen to see the architecture underneath.
+          Each project documented like a part: what it does, what it runs on and how it is wired. Rest on the right-hand
+          page for a few seconds to turn it, and drag the loupe over a screen to see the architecture underneath.
         </p>
       </header>
       <div data-reveal>

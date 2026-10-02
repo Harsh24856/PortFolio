@@ -8,7 +8,7 @@ import { canvas2d } from "./util"
    blurred in the green; the blur is read as a height field, so the letters
    get bevelled edges that catch a light which follows the pointer. */
 
-export const WORDS = ["HARSH", "ASSEMBLY", "LAYOUT", "WORK", "SHEETS", "CONTACT", "SEHRA"] as const
+export const WORDS = ["HARSH", "ABOUT", "TOOLKIT", "WORK", "SHEETS", "CONTACT", "SEHRA"] as const
 const ROW = 292
 const ATLAS_W = 2048
 

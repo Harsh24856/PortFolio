@@ -11,7 +11,7 @@ const N = toolGroups.length
 const projectName = (slug: string) => projects.find((p) => p.slug === slug)?.name ?? slug
 const reduced = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches
 
-/* The pinned stretch of the layout chapter: one step of scroll per group.
+/* The pinned stretch of the toolkit chapter: one step of scroll per group.
    The tabs and the scroll are one control: choosing a tab scrolls to its
    step, and scrolling to a step selects its tab. */
 export function LayoutPin({ head, foot }: { head: ReactNode; foot: ReactNode }) {
@@ -69,7 +69,7 @@ export function LayoutPin({ head, foot }: { head: ReactNode; foot: ReactNode }) 
                 <span className={`${s.tabN} num`}>{String(i + 1).padStart(2, "0")}</span>
                 <b>{grp.name}</b>
                 <span className="tag">
-                  {grp.tools.length} {grp.tools.length === 1 ? "key" : "keys"}
+                  {grp.tools.length} {grp.tools.length === 1 ? "tool" : "tools"}
                 </span>
               </button>
             ))}
@@ -89,7 +89,7 @@ export function LayoutPin({ head, foot }: { head: ReactNode; foot: ReactNode }) 
           <p className={s.count}>
             <span className="num">{String(g.tools.length).padStart(2, "0")}</span>
           </p>
-          <p className="tag">Keys lit</p>
+          <p className="tag">Tools lit</p>
         </div>
         {foot}
       </div>

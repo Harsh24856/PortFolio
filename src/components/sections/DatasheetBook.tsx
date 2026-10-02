@@ -11,12 +11,26 @@ import s from "./Datasheets.module.css"
 
 const partNo = (p: Project, i: number) => `HS-${p.year.slice(2)}${String(i + 1).padStart(2, "0")}`
 const TOTAL = 2 + projects.length * 2
+/** how long the pointer rests on the right-hand page before it turns */
+const DWELL_MS = 5000
 
 /* ------------------------------------------------------------ the pages */
 
-function PageFrame({ n, part, title, children }: { n: number; part?: string; title?: string; children: ReactNode }) {
+function PageFrame({
+  n,
+  part,
+  title,
+  dark,
+  children,
+}: {
+  n: number
+  part?: string
+  title?: string
+  dark?: boolean
+  children: ReactNode
+}) {
   return (
-    <div className={s.page}>
+    <div className={dark ? `${s.page} ${s.pageDark}` : s.page}>
       <div className={`${s.pageHead} mono`}>
         <span>{part ?? "HS-DS"}</span>
         <span>{title ?? "Datasheets"}</span>
@@ -34,7 +48,7 @@ function PageFrame({ n, part, title, children }: { n: number; part?: string; tit
 
 function Cover() {
   return (
-    <PageFrame n={1}>
+    <PageFrame n={1} dark>
       <div className={s.cover}>
         <Mark size={44} className={s.coverMark} />
         <p className={s.coverTitle}>Datasheets</p>
@@ -185,8 +199,11 @@ export function DatasheetBook() {
   const [turning, setTurning] = useState(-1)
   const leaves = projects.length
   const maxSpread = leaves
-  const dwell = useRef<ReturnType<typeof setTimeout> | null>(null)
   const swipe = useRef<{ x: number; id: number } | null>(null)
+  const stage = useRef<HTMLDivElement>(null)
+  /* resting the pointer on the right-hand page for a few seconds turns it */
+  const [resting, setResting] = useState(0)
+  const restTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const go = useCallback(
     (next: number) => {
@@ -210,6 +227,10 @@ export function DatasheetBook() {
     return () => io.disconnect()
     /* narrow swaps the book for the page strip, a different element */
   }, [live, narrow])
+
+  useEffect(() => () => {
+    if (restTimer.current) clearTimeout(restTimer.current)
+  }, [])
 
   useEffect(() => {
     if (turning < 0) return
@@ -236,13 +257,27 @@ export function DatasheetBook() {
     )
   }
 
-  const hold = (dir: 1 | -1) => {
-    if (dwell.current) clearTimeout(dwell.current)
-    dwell.current = setTimeout(() => go(spread + dir), 650)
+  const stopRest = () => {
+    if (restTimer.current) clearTimeout(restTimer.current)
+    restTimer.current = null
+    setResting(0)
   }
-  const release = () => {
-    if (dwell.current) clearTimeout(dwell.current)
-    dwell.current = null
+  const onStageMove = (e: React.PointerEvent) => {
+    if (e.pointerType !== "mouse") return
+    const r = stage.current?.getBoundingClientRect()
+    const onRight = !!r && e.clientX > r.left + r.width / 2 && spread < maxSpread
+    if (!onRight) {
+      if (restTimer.current) stopRest()
+      return
+    }
+    if (restTimer.current) return
+    /* a fresh key restarts the fill animation for each rest */
+    setResting(Date.now())
+    restTimer.current = setTimeout(() => {
+      restTimer.current = null
+      setResting(0)
+      go(spread + 1)
+    }, DWELL_MS)
   }
 
   /* which faces are showing: everything else is inert */
@@ -270,7 +305,10 @@ export function DatasheetBook() {
       }}
     >
       <div
+        ref={stage}
         className={s.stage}
+        onPointerMove={onStageMove}
+        onPointerLeave={stopRest}
         onPointerDown={(e) => {
           if (e.pointerType !== "mouse") swipe.current = { x: e.clientX, id: e.pointerId }
         }}
@@ -297,8 +335,6 @@ export function DatasheetBook() {
         {spread > 0 && (
           <div
             className={`${s.corner} ${s.cornerLeft}`}
-            onPointerEnter={() => hold(-1)}
-            onPointerLeave={release}
             onClick={() => go(spread - 1)}
             aria-hidden="true"
           />
@@ -306,12 +342,19 @@ export function DatasheetBook() {
         {spread < maxSpread && (
           <div
             className={`${s.corner} ${s.cornerRight}`}
-            onPointerEnter={() => hold(1)}
-            onPointerLeave={release}
             onClick={() => go(spread + 1)}
             aria-hidden="true"
           />
         )}
+        <div
+          key={resting}
+          className={s.dwell}
+          data-on={resting > 0 || undefined}
+          style={{ "--dwell": `${DWELL_MS}ms` } as React.CSSProperties}
+          aria-hidden="true"
+        >
+          <i />
+        </div>
       </div>
 
       <div className={s.controls}>

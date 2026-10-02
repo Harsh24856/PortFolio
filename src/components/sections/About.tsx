@@ -1,33 +1,35 @@
-import { layers, specs } from "@/content/profile"
+import { specs, strengths } from "@/content/profile"
 import { Heading } from "@/components/ui/Heading"
-import { AssemblyPin } from "./AssemblyPin"
+import { AboutPin } from "./AboutPin"
 import s from "./About.module.css"
 
-/* Assembly: the board comes apart into its five layers as the reader
-   scrolls, and each layer stands for one layer of how I build. */
+/* About: who I am, then what I am good at, one strength at a time as the
+   reader scrolls. The board comes apart behind it. */
 export function About() {
   return (
-    <AssemblyPin>
+    <AboutPin count={strengths.length}>
       <div className={s.copy} data-reveal>
         <p className="eyebrow on-scene" data-reveal-fade>
-          <span>01</span> Assembly
+          <span>01</span> About
         </p>
-        <Heading id="about-h" lines={["Five layers,", "each one load-bearing."]} />
+        <Heading id="about-h" lines={["Interface to", "infrastructure."]} />
         <p className="body on-scene" data-reveal-fade>
-          I&apos;m a software engineer studying Computer Science at Punjab Engineering College, Chandigarh, and since
-          2024 I&apos;ve freelanced for early-stage startups across healthtech, SaaS and analytics. I build a product
-          the way this board goes together: from the tray up, every layer seated before the next.
+          I&apos;m Harsh, a software engineer studying Computer Science at Punjab Engineering College, Chandigarh. Since
+          2024 I&apos;ve freelanced for early-stage startups across healthtech, SaaS and analytics: I sit with founders,
+          turn rough ideas into interfaces, APIs and databases, and ship them.
         </p>
-        <ol className={s.layers} data-reveal-fade data-layers>
-          {layers.map((l, i) => (
-            <li key={l.part} data-layer={i}>
+        <ol className={s.layers} data-reveal-fade data-layers aria-label="What I bring">
+          {strengths.map((l, i) => (
+            <li key={l.title}>
               <span className={`${s.n} num`}>{String(i + 1).padStart(2, "0")}</span>
               <span className={s.lt}>
                 <b>
-                  {l.part}
-                  <span className={s.role}>{l.role}</span>
+                  {l.title}
+                  <span className={s.role}>{l.tag}</span>
                 </b>
-                <span className={s.note}>{l.note}</span>
+                <span className={s.note}>
+                  <span>{l.note}</span>
+                </span>
               </span>
             </li>
           ))}
@@ -45,6 +47,6 @@ export function About() {
           </div>
         ))}
       </dl>
-    </AssemblyPin>
+    </AboutPin>
   )
 }

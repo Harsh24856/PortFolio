@@ -20,7 +20,7 @@
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  background: linear-gradient(90deg, rgba(0, 0, 0, 0.72) 0%, rgba(0, 0, 0, 0.4) 30%, transparent 52%);
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.88) 0%, rgba(0, 0, 0, 0.72) 34%, rgba(0, 0, 0, 0.3) 46%, transparent 58%);
 }
 .copy {
   grid-column: 1;
@@ -81,6 +81,12 @@
   color: var(--silver);
   opacity: 0;
   transition: grid-template-rows 0.5s var(--ease-out), opacity 0.4s var(--ease), margin 0.5s var(--ease-out);
+}
+/* the row collapses to nothing: the text sits in one child that may
+   shrink below its content */
+.note > span {
+  min-height: 0;
+  overflow: hidden;
 }
 .layers li[data-on] {
   color: var(--white);

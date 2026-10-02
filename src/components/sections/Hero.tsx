@@ -11,10 +11,10 @@ export function Hero() {
         <h1 id="hero-h" className="display h1 on-scene">
           <span className="sr-only">Harsh Sehra. </span>
           <span className="mask-line">
-            <span style={{ "--i": 0 } as React.CSSProperties}>Software, built the way</span>
+            <span style={{ "--i": 0 } as React.CSSProperties}>Full-stack and applied AI,</span>
           </span>
           <span className="mask-line">
-            <span style={{ "--i": 1 } as React.CSSProperties}>a good board is.</span>
+            <span style={{ "--i": 1 } as React.CSSProperties}>built end to end.</span>
           </span>
         </h1>
       </div>
@@ -23,15 +23,15 @@ export function Hero() {
 
       <div className={s.foot} data-reveal>
         <p className={`${s.lead} on-scene`} data-reveal-fade data-hero-fade>
-          Full-stack and applied AI engineer. I build web and mobile products for early-stage startups, from the
-          database up to the last keycap.
+          I&apos;m Harsh, a software engineer in Chandigarh. I build web and mobile products for early-stage
+          startups: the interface, the API, the database and the models on top.
         </p>
         <div className={s.ctas} data-reveal-fade data-hero-fade>
           <a className="btn btn--solid" href="#work" data-cursor>
             See the work
           </a>
           <a className="btn" href="#about" data-cursor>
-            Take it apart
+            About me
           </a>
         </div>
         <div className={`${s.readout} on-scene`} data-reveal-fade data-hero-fade>

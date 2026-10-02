@@ -58,33 +58,66 @@
   transform: rotateY(180deg);
 }
 
-/* --------------------------------------------------------------- a page */
+/* --------------------------------------------------------------- a page
+   Inner pages are paper: the colour tokens are re-pointed inside a page, so
+   every rule below inks black on white, with blue for what is live. The
+   cover stays black. */
 .page {
+  --white: #0b0d12;
+  --silver: #3a404a;
+  --steel: #5a606a;
+  --signal: #2f5bff;
+  --signal-glow: rgba(47, 91, 255, 0.28);
+  --line: rgba(11, 13, 18, 0.16);
+  --line-soft: rgba(11, 13, 18, 0.09);
+  --line-strong: rgba(11, 13, 18, 0.32);
   position: relative;
   container-type: inline-size;
   height: 100%;
   display: flex;
   flex-direction: column;
   padding: 5.4cqi 6cqi 4.2cqi;
-  background-color: #000;
+  color: var(--white);
+  background-color: #f3f4f7;
   background-image:
-    linear-gradient(rgba(122, 167, 255, 0.055) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(122, 167, 255, 0.055) 1px, transparent 1px);
+    linear-gradient(rgba(47, 91, 255, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(47, 91, 255, 0.07) 1px, transparent 1px);
   background-size: 22px 22px;
   background-position: -1px -1px;
-  border: 1px solid var(--line);
+  border: 1px solid rgba(244, 245, 247, 0.5);
   overflow: hidden;
+}
+/* the cover: black, with the blue grid and a pool of blue light */
+.pageDark {
+  --white: #f4f5f7;
+  --silver: #a9afb8;
+  --steel: #8b919b;
+  --signal: #7aa7ff;
+  --line: rgba(244, 245, 247, 0.14);
+  --line-soft: rgba(244, 245, 247, 0.08);
+  --line-strong: rgba(244, 245, 247, 0.28);
+  background-color: #000;
+  background-image:
+    radial-gradient(90% 60% at 30% 100%, rgba(47, 91, 255, 0.3), transparent 70%),
+    linear-gradient(rgba(122, 167, 255, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(122, 167, 255, 0.07) 1px, transparent 1px);
+  background-size: auto, 22px 22px, 22px 22px;
+  border-color: var(--line);
 }
 /* outer corners round, the spine stays square and shaded */
 .baseLeft .page,
 .back .page {
   border-radius: var(--r-lg) 0 0 var(--r-lg);
-  box-shadow: inset -28px 0 40px -28px rgba(122, 167, 255, 0.12);
+  box-shadow: inset -30px 0 40px -28px rgba(11, 13, 18, 0.22);
 }
 .baseRight .page,
 .front .page {
   border-radius: 0 var(--r-lg) var(--r-lg) 0;
-  box-shadow: inset 28px 0 40px -28px rgba(122, 167, 255, 0.12);
+  box-shadow: inset 30px 0 40px -28px rgba(11, 13, 18, 0.22);
+}
+.baseLeft .pageDark,
+.back .pageDark {
+  box-shadow: inset -28px 0 40px -28px rgba(122, 167, 255, 0.14);
 }
 .pageHead,
 .pageFoot {
@@ -290,6 +323,13 @@
   object-fit: cover;
 }
 .under {
+  --white: #f4f5f7;
+  --silver: #a9afb8;
+  --steel: #8b919b;
+  --signal: #7aa7ff;
+  --line: rgba(244, 245, 247, 0.14);
+  --line-soft: rgba(244, 245, 247, 0.08);
+  --line-strong: rgba(244, 245, 247, 0.28);
   position: absolute;
   inset: 0;
   display: grid;
@@ -314,7 +354,7 @@
   translate: -50% -50%;
   border-radius: 50%;
   border: 1px solid var(--signal);
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.6), 0 0 22px var(--signal-glow);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.7), 0 0 22px var(--signal-glow);
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.3s var(--ease);
@@ -376,7 +416,8 @@
 .cornerRight::before {
   right: 0;
   border-bottom-right-radius: var(--r-lg);
-  background: linear-gradient(315deg, transparent 50%, rgba(244, 245, 247, 0.22) 50%, rgba(122, 167, 255, 0.16));
+  background: linear-gradient(315deg, transparent 50%, #dfe4ef 50%, #c4cfeb);
+  box-shadow: -2px -2px 6px rgba(11, 13, 18, 0.12);
 }
 .cornerLeft {
   left: 0;
@@ -384,11 +425,42 @@
 .cornerLeft::before {
   left: 0;
   border-bottom-left-radius: var(--r-lg);
-  background: linear-gradient(45deg, transparent 50%, rgba(244, 245, 247, 0.22) 50%, rgba(122, 167, 255, 0.16));
+  background: linear-gradient(45deg, transparent 50%, #dfe4ef 50%, #c4cfeb);
+  box-shadow: 2px -2px 6px rgba(11, 13, 18, 0.12);
 }
 .corner:hover::before {
   width: 52px;
   height: 52px;
+}
+
+/* resting on the right-hand page turns it: a blue rule fills along the
+   foot of the page for the five seconds before it goes */
+.dwell {
+  position: absolute;
+  left: 50%;
+  right: 0;
+  bottom: 0;
+  z-index: 55;
+  height: 3px;
+  border-radius: 0 0 var(--r-lg) 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.dwell i {
+  display: block;
+  height: 100%;
+  background: #2f5bff;
+  box-shadow: 0 0 10px rgba(47, 91, 255, 0.7);
+  transform: scaleX(0);
+  transform-origin: left;
+}
+.dwell[data-on] i {
+  animation: dwell var(--dwell) linear forwards;
+}
+@keyframes dwell {
+  to {
+    transform: scaleX(1);
+  }
 }
 
 .controls {

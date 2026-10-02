@@ -5,8 +5,8 @@ import s from "./ChapterRail.module.css"
 
 const STOPS = [
   { id: "hero", label: "Index" },
-  { id: "about", label: "Assembly" },
-  { id: "toolkit", label: "Layout" },
+  { id: "about", label: "About" },
+  { id: "toolkit", label: "Toolkit" },
   { id: "work", label: "Work" },
   { id: "datasheets", label: "Datasheets" },
   { id: "contact", label: "Contact" },

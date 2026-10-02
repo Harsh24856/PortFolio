@@ -12,39 +12,39 @@ export const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:400
 
 /** The chapters the camera walks, in scroll order, after the hero (00). */
 export const chapters = [
-  { id: "about", label: "Assembly", note: "How I build, layer by layer." },
-  { id: "toolkit", label: "Layout", note: "Every tool I reach for." },
+  { id: "about", label: "About", note: "Who I am and what I am good at." },
+  { id: "toolkit", label: "Toolkit", note: "Every tool I reach for." },
   { id: "work", label: "Work", note: "Four products, built end to end." },
   { id: "datasheets", label: "Datasheets", note: "How each one is wired." },
   { id: "contact", label: "Contact", note: "Send a note about what you are building." },
 ] as const
 
-/** The board's five layers, bottom up, and the part of a product each one is. */
-export const layers = [
+/** What I bring, in five parts. The About chapter walks them one at a time. */
+export const strengths = [
   {
-    part: "Tray",
-    role: "Infrastructure",
-    note: "Docker, CI and the cloud underneath. Nothing above it holds if this flexes.",
+    title: "Full-stack web",
+    tag: "React, Next.js, Node",
+    note: "Interfaces, APIs and databases built as one system, so nothing gets lost between the layers.",
   },
   {
-    part: "Diffuser",
-    role: "Data",
-    note: "Postgres and Supabase: the layer everything else is lit by.",
+    title: "Mobile apps",
+    tag: "React Native, Expo",
+    note: "Cross-platform apps from a single codebase, with live maps and real-time updates where they matter.",
   },
   {
-    part: "Switches",
-    role: "Services",
-    note: "Node, Express and FastAPI, where every press becomes a request.",
+    title: "Applied machine learning",
+    tag: "Python, TensorFlow",
+    note: "Models that earn their place in a product, from engine fault detection to document OCR.",
   },
   {
-    part: "Top case",
-    role: "Interface",
-    note: "React and React Native, framing what a person can reach.",
+    title: "Backends and data",
+    tag: "FastAPI, Postgres, Supabase",
+    note: "Typed APIs, clean schemas and real-time sync that hold up once real users arrive.",
   },
   {
-    part: "Keycaps",
-    role: "Product",
-    note: "The part people touch. It has to feel right the first time.",
+    title: "Working with founders",
+    tag: "Freelance since 2024",
+    note: "Turning a rough idea into a scoped, shipped product, then staying on to iterate on it.",
   },
 ] as const
 

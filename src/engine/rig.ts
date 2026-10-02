@@ -19,7 +19,7 @@ export const CAM: Station[] = [
   /* 0 hero: the board at three-quarters, the left of it in x-ray */
   { p: [-10.2, 16.4, 23.5], t: [0.9, -1.2, 0.9], fov: 30, scan: -4.4, word: [0.27, 0.9, 0.85] },
   /* 1 assembly: from the front right, low enough to see between the layers */
-  { p: [14, 10.5, 19.5], t: [-2.4, 2.6, -0.4], fov: 34, scan: -12, word: [0.5, 0.94, 0.42] },
+  { p: [15, 10.5, 20.5], t: [-5.2, 2.6, -0.4], fov: 33, scan: -12, word: [0.5, 0.94, 0.26] },
   /* 2 layout: straight down on the board */
   { p: [0, 19.5, 2.4], t: [0, 0, -1.9], fov: 38, scan: -12, word: [0.84, 0.7, 0.32] },
   /* 3 work: a macro pass low over the left of the board, the cut beside it */
