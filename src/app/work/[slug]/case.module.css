@@ -1,0 +1,245 @@
+.main {
+  padding: calc(var(--nav-h) + clamp(24px, 6vh, 64px)) var(--pad) 0;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+.head {
+  max-width: 900px;
+}
+.back {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-size: 14.5px;
+  color: var(--silver);
+  transition: color 0.3s var(--ease);
+}
+.back::before {
+  content: "";
+  width: 18px;
+  height: 1px;
+  margin-right: 10px;
+  background: currentColor;
+}
+.back:hover {
+  color: var(--white);
+}
+.part {
+  display: flex;
+  gap: 18px;
+  margin-top: clamp(20px, 4vh, 40px);
+  color: var(--steel);
+}
+.part span:last-child {
+  color: var(--signal);
+}
+.title {
+  margin-top: 14px;
+  font-size: clamp(44px, 8vw, 120px);
+}
+.summary {
+  margin-top: 20px;
+  color: var(--silver);
+}
+.links {
+  list-style: none;
+  margin: 28px 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.plate {
+  position: relative;
+  margin-top: clamp(40px, 8vh, 80px);
+  aspect-ratio: 16 / 9;
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: #000;
+}
+.plate img {
+  object-fit: cover;
+}
+
+.body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: clamp(40px, 7vh, 80px) clamp(32px, 6vw, 96px);
+  margin-top: clamp(56px, 10vh, 120px);
+}
+.block {
+  min-width: 0;
+}
+.wide {
+  grid-column: 1 / -1;
+}
+.h2 {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--steel);
+  padding-bottom: 12px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--line);
+}
+.prose {
+  font-size: clamp(17px, 1.3vw, 20px);
+  line-height: 1.6;
+  max-width: 56ch;
+  text-wrap: pretty;
+}
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 14px;
+}
+.list li {
+  position: relative;
+  padding-left: 22px;
+  font-size: 16.5px;
+  line-height: 1.6;
+  color: var(--silver);
+}
+.list li::before {
+  content: "";
+  position: absolute;
+  left: 2px;
+  top: 0.72em;
+  width: 8px;
+  height: 1px;
+  background: var(--signal);
+}
+
+.arch {
+  padding: clamp(16px, 3vw, 40px);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background-color: rgba(0, 0, 0, 0.8);
+  background-image:
+    linear-gradient(rgba(122, 167, 255, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(122, 167, 255, 0.06) 1px, transparent 1px);
+  background-size: 20px 20px;
+  overflow-x: auto;
+}
+.arch svg {
+  min-width: 560px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+.legend {
+  list-style: none;
+  margin: 14px 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 22px;
+  color: var(--silver);
+}
+.legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.legend li::before {
+  content: "";
+  width: 18px;
+  height: 11px;
+  border-radius: 2px;
+  border: 1px solid rgba(244, 245, 247, 0.55);
+}
+.legend li[data-k="service"]::before {
+  border-color: var(--signal);
+}
+.legend li[data-k="model"]::before {
+  border: 1px dashed var(--signal);
+}
+.legend li[data-k="data"]::before {
+  border-color: var(--silver);
+  border-top-width: 3px;
+}
+.legend li[data-k="external"]::before {
+  border: 1px dotted var(--silver);
+}
+
+.decisions {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(20px, 3vw, 40px);
+}
+.decisions li {
+  padding-top: 18px;
+  border-top: 1px solid var(--line-strong);
+}
+.decisions .num {
+  font-size: 12px;
+  color: var(--signal);
+}
+.decisions h3 {
+  margin-top: 10px;
+}
+.decisions p {
+  margin-top: 10px;
+  font-size: 15.5px;
+  line-height: 1.65;
+  color: var(--silver);
+}
+
+.stack {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.stack li {
+  padding: 7px 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-xs);
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  color: var(--white);
+}
+
+.next {
+  margin-top: clamp(80px, 14vh, 160px);
+  border-top: 1px solid var(--line);
+}
+.next a {
+  display: grid;
+  gap: 8px;
+  padding: clamp(28px, 5vh, 56px) 0;
+}
+.next .mono {
+  color: var(--steel);
+}
+.next b {
+  font-size: clamp(36px, 6vw, 88px);
+  font-weight: 380;
+  transition: color 0.35s var(--ease);
+}
+.next a > span:last-child {
+  max-width: 60ch;
+  color: var(--silver);
+}
+.next a:hover b {
+  color: var(--signal);
+}
+
+@media (max-width: 860px) {
+  .body {
+    grid-template-columns: 1fr;
+  }
+  .decisions {
+    grid-template-columns: 1fr;
+  }
+  .plate {
+    aspect-ratio: 4 / 3;
+  }
+}

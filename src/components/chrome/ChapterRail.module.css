@@ -1,0 +1,58 @@
+.rail {
+  position: fixed;
+  right: calc(var(--pad) - 14px);
+  top: 50%;
+  z-index: 45;
+  display: flex;
+  flex-direction: column;
+  transform: translateY(-50%);
+}
+.stop {
+  position: relative;
+  display: grid;
+  place-items: center end;
+  width: 44px;
+  height: 22px;
+  padding-right: 10px;
+}
+.stop i {
+  display: block;
+  width: 12px;
+  height: 1px;
+  background: rgba(244, 245, 247, 0.32);
+  transition: width 0.5s var(--ease-out), background 0.3s var(--ease);
+}
+.stop:hover i,
+.stop:focus-visible i {
+  width: 20px;
+  background: var(--white);
+}
+.stop[aria-current] i {
+  width: 22px;
+  background: var(--signal);
+  box-shadow: 0 0 8px var(--signal);
+}
+.tip {
+  position: absolute;
+  right: 44px;
+  top: 50%;
+  translate: 0 -50%;
+  white-space: nowrap;
+  font-size: 13px;
+  color: var(--white);
+  opacity: 0;
+  transform: translate3d(6px, 0, 0);
+  pointer-events: none;
+  transition: opacity 0.3s var(--ease), transform 0.4s var(--ease-out);
+  text-shadow: 0 1px 14px #000;
+}
+.stop:hover .tip,
+.stop:focus-visible .tip {
+  opacity: 1;
+  transform: none;
+}
+@media (max-width: 860px) {
+  .rail {
+    display: none;
+  }
+}

@@ -1,0 +1,89 @@
+.foot {
+  position: relative;
+  padding: clamp(160px, 34vh, 360px) var(--pad) clamp(26px, 4vh, 40px);
+}
+/* on pages without the die shot there is nothing to make room for */
+.compact {
+  padding-top: clamp(56px, 10vh, 96px);
+}
+.foot::before {
+  content: "";
+  position: absolute;
+  inset: 30% 0 0 0;
+  pointer-events: none;
+  background: linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.78) 45%);
+}
+.grid,
+.base {
+  position: relative;
+}
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) repeat(3, minmax(0, 0.6fr));
+  gap: clamp(22px, 4vw, 60px);
+  padding-bottom: clamp(36px, 6vh, 64px);
+}
+.brand {
+  display: grid;
+  gap: 16px;
+  align-content: start;
+}
+.brand p {
+  font-size: clamp(18px, 1.6vw, 24px);
+  font-variation-settings: "wdth" 112;
+  font-weight: 380;
+  max-width: 28ch;
+  line-height: 1.35;
+}
+.h {
+  margin: 0 0 12px;
+  font-size: 13px;
+  font-weight: 400;
+  font-family: var(--font-mono);
+  color: var(--steel);
+}
+.grid ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.grid li a {
+  overflow-wrap: anywhere;
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  font-size: 15px;
+  color: var(--silver);
+  transition: color 0.3s var(--ease);
+}
+.grid li a:hover {
+  color: var(--white);
+}
+.base {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+  font-size: 14px;
+  color: var(--steel);
+}
+.base a {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  color: var(--silver);
+}
+.base a:hover {
+  color: var(--white);
+}
+@media (max-width: 860px) {
+  .grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .brand {
+    grid-column: 1 / -1;
+  }
+}

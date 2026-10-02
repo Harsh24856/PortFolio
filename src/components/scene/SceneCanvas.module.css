@@ -1,0 +1,53 @@
+.canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  background: transparent;
+  opacity: 0;
+  transition: opacity 1.2s var(--ease);
+}
+:global(html.die-ready) .canvas {
+  opacity: 1;
+}
+:global(html.no-webgl) .canvas {
+  display: none;
+}
+
+/* The stand-in when there is no scene: the wafer in the sky and the die's
+   floorplan grid, drawn in CSS. Also the backdrop while the engine loads. */
+.poster {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 74% 18%, rgba(122, 167, 255, 0.16) 0, rgba(122, 167, 255, 0.05) 14vmax, transparent 15vmax),
+    radial-gradient(circle at 74% 18%, #0b0e15 0, #07090d 14.6vmax, transparent 14.7vmax),
+    linear-gradient(180deg, #000 0%, #03050a 60%, #000 100%);
+}
+.poster::after {
+  content: "";
+  position: absolute;
+  inset: 52% -10% -10% -10%;
+  background-image:
+    linear-gradient(rgba(122, 167, 255, 0.09) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(122, 167, 255, 0.09) 1px, transparent 1px);
+  background-size: 48px 48px;
+  transform: perspective(600px) rotateX(62deg);
+  transform-origin: top;
+  -webkit-mask-image: linear-gradient(180deg, transparent, #000 40%);
+  mask-image: linear-gradient(180deg, transparent, #000 40%);
+}
+:global(html.die-ready) .poster {
+  opacity: 0;
+  transition: opacity 1.2s var(--ease);
+}
+.vignette {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: radial-gradient(125% 95% at 50% 42%, transparent 46%, rgba(0, 0, 0, 0.6) 100%);
+}

@@ -1,0 +1,138 @@
+.section {
+  min-height: 100svh;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr);
+  gap: clamp(32px, 6vw, 110px);
+  align-items: center;
+}
+.copy {
+  display: grid;
+  gap: 22px;
+}
+.reach {
+  list-style: none;
+  margin: 18px 0 0;
+  padding: 0;
+  border-top: 1px solid var(--line);
+  max-width: 560px;
+}
+.reach li {
+  border-bottom: 1px solid var(--line);
+}
+.reach a {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  min-height: 56px;
+  font-size: 15.5px;
+}
+.reach a span:first-child {
+  color: var(--silver);
+}
+.reach b {
+  font-weight: 450;
+  color: var(--white);
+  transition: color 0.3s var(--ease);
+}
+.reach a:hover b {
+  color: var(--signal);
+}
+
+.panel {
+  padding: clamp(22px, 3vw, 40px);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: rgba(0, 0, 0, 0.74);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+.form {
+  display: grid;
+  gap: 20px;
+}
+.field {
+  display: grid;
+  gap: 8px;
+}
+.field label {
+  font-size: 14.5px;
+  color: var(--white);
+}
+.field input,
+.field textarea {
+  width: 100%;
+  font: inherit;
+  font-size: 16px;
+  color: var(--white);
+  background: rgba(244, 245, 247, 0.03);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-sm);
+  padding: 13px 14px;
+  transition: border-color 0.25s var(--ease), background 0.25s var(--ease);
+}
+.field textarea {
+  resize: vertical;
+  min-height: 132px;
+}
+.field input::placeholder {
+  color: var(--steel);
+}
+.field input:hover,
+.field textarea:hover {
+  border-color: rgba(244, 245, 247, 0.42);
+}
+.field input:focus-visible,
+.field textarea:focus-visible {
+  outline: none;
+  border-color: var(--signal);
+  background: rgba(122, 167, 255, 0.05);
+  box-shadow: 0 0 0 3px rgba(122, 167, 255, 0.18);
+}
+.field[data-invalid] input,
+.field[data-invalid] textarea {
+  border-color: #ff8a8a;
+}
+.err {
+  margin: 0;
+  font-size: 14px;
+  color: #ffb4b4;
+}
+.hp {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+.foot {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 4px;
+}
+.status {
+  font-size: 14.5px;
+  color: var(--silver);
+  max-width: 40ch;
+}
+.status a {
+  color: var(--white);
+  text-decoration: underline;
+  text-decoration-color: var(--signal);
+}
+.sent {
+  display: grid;
+  gap: 12px;
+  justify-items: start;
+}
+.sent:focus {
+  outline: none;
+}
+
+@media (max-width: 900px) {
+  .section {
+    grid-template-columns: 1fr;
+  }
+}

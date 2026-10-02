@@ -1,18 +1,323 @@
-:root { --ink: #05070a; --bone: #dfe7e0; --dim: #aab4ad; --line: rgba(223, 231, 224, 0.13); --accent: #e0231c; }
-* { box-sizing: border-box; }
-html { color-scheme: dark; }
+/* ============================================================== tokens
+   Black, white and a little blue. Blue is light, never paint: it marks what
+   is live (focus, the active chapter, a signal in flight) and is never used
+   to fill an area. */
+:root {
+  --void: #000000;
+  --white: #f4f5f7;
+  --silver: #a9afb8;
+  --steel: #6e747e;
+  --signal: #7aa7ff;
+  --signal-deep: #2f5bff;
+  --signal-glow: rgba(122, 167, 255, 0.32);
+
+  --line: rgba(244, 245, 247, 0.12);
+  --line-soft: rgba(244, 245, 247, 0.07);
+  --line-strong: rgba(244, 245, 247, 0.26);
+  --veil: rgba(0, 0, 0, 0.62);
+  --pane: rgba(10, 12, 16, 0.58);
+
+  --r-xs: 2px;
+  --r-sm: 6px;
+  --r-lg: 14px;
+
+  --pad: clamp(16px, 3.4vw, 56px);
+  --nav-h: 76px;
+  --measure: 62ch;
+
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-io: cubic-bezier(0.65, 0, 0.35, 1);
+
+  --font-sans: var(--font-archivo), system-ui, -apple-system, "Helvetica Neue", sans-serif;
+  --font-mono: var(--font-b612), ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+
+/* ================================================================ base */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+html {
+  color-scheme: dark;
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: auto;
+  background: var(--void);
+}
 body {
-  margin: 0; min-height: 100dvh; background: var(--ink); color: var(--bone);
-  font-family: system-ui, -apple-system, "Helvetica Neue", sans-serif; font-weight: 300; line-height: 1.6;
+  margin: 0;
+  min-height: 100dvh;
+  background: var(--void);
+  color: var(--white);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  font-weight: 350;
+  line-height: 1.6;
+  font-variation-settings: "wdth" 100;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: clip;
 }
-.lost { min-height: 100dvh; display: flex; flex-direction: column; justify-content: center; padding: 0 clamp(20px, 6vw, 96px); }
-.lost .lost-code { margin: 0; font-size: clamp(72px, 14vw, 200px); font-weight: 600; line-height: 1; color: var(--accent); }
-.lost h1 { margin: 12px 0 0; font-size: clamp(26px, 3.4vw, 48px); font-weight: 400; letter-spacing: -0.01em; }
-.lost p { color: var(--dim); max-width: 44ch; }
-.lost a {
-  align-self: flex-start; margin-top: 28px; padding: 15px 28px; border-radius: 100px; background: var(--accent); color: #fff;
-  font-size: 11px; font-weight: 500; letter-spacing: 0.22em; text-transform: uppercase; text-decoration: none; transition: background 0.3s, color 0.3s;
+::selection {
+  background: var(--signal-deep);
+  color: #fff;
 }
-.lost a:hover { background: var(--bone); color: var(--ink); }
-.lost a:focus-visible { outline: 2px solid var(--bone); outline-offset: 3px; }
+img,
+svg,
+canvas {
+  display: block;
+  max-width: 100%;
+}
+a {
+  color: inherit;
+  text-decoration: none;
+}
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+h1,
+h2,
+h3,
+h4,
+p,
+dl,
+dd,
+figure {
+  margin: 0;
+}
+:focus-visible {
+  outline: 2px solid var(--signal);
+  outline-offset: 3px;
+  border-radius: var(--r-xs);
+}
+
+/* ================================================================ type */
+.display {
+  font-weight: 380;
+  font-variation-settings: "wdth" 116;
+  letter-spacing: -0.022em;
+  line-height: 1.02;
+  text-wrap: balance;
+}
+.h1 {
+  font-size: clamp(34px, 4.6vw, 72px);
+}
+.h2 {
+  font-size: clamp(32px, 4.2vw, 64px);
+}
+.h3 {
+  font-size: clamp(19px, 1.5vw, 23px);
+  font-weight: 450;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+}
+.lead {
+  font-size: clamp(17px, 1.25vw, 20px);
+  line-height: 1.6;
+  color: var(--white);
+  max-width: var(--measure);
+  text-wrap: pretty;
+}
+.body {
+  font-size: 16px;
+  line-height: 1.65;
+  color: var(--silver);
+  max-width: var(--measure);
+  text-wrap: pretty;
+}
+.mono {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  letter-spacing: 0.01em;
+  line-height: 1.5;
+  font-variant-numeric: tabular-nums;
+}
+.num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+/* copy sitting straight on the scene gets a soft dark halo, not a box */
+.on-scene {
+  text-shadow: 0 1px 24px rgba(0, 0, 0, 0.92), 0 0 2px rgba(0, 0, 0, 0.6);
+}
+
+/* =========================================================== utilities */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+.skip {
+  position: fixed;
+  left: var(--pad);
+  top: 12px;
+  z-index: 200;
+  padding: 10px 16px;
+  border-radius: var(--r-sm);
+  background: var(--white);
+  color: var(--void);
+  font-size: 14px;
+  transform: translateY(-160%);
+  transition: transform 0.3s var(--ease-out);
+}
+.skip:focus-visible {
+  transform: none;
+}
+
+/* ============================================================ buttons
+   The fill rises from below on hover, the original template's gesture. */
+.btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 48px;
+  padding: 0 22px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--line-strong);
+  color: var(--white);
+  font-size: 15px;
+  font-weight: 450;
+  letter-spacing: 0.005em;
+  overflow: hidden;
+  isolation: isolate;
+  transition: color 0.35s var(--ease), border-color 0.35s var(--ease);
+}
+.btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--white);
+  transform: translate3d(0, 101%, 0);
+  transition: transform 0.5s var(--ease-out);
+}
+.btn:hover,
+.btn:focus-visible {
+  color: var(--void);
+  border-color: var(--white);
+}
+.btn:hover::before,
+.btn:focus-visible::before {
+  transform: none;
+}
+.btn--solid {
+  background: var(--white);
+  color: var(--void);
+  border-color: var(--white);
+}
+.btn--solid::before {
+  background: var(--signal);
+}
+.btn--solid:hover,
+.btn--solid:focus-visible {
+  border-color: var(--signal);
+}
+.btn svg {
+  flex: none;
+}
+.btn[disabled] {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+html.is-loading,
+html.is-loading body,
+html.nav-open,
+html.nav-open body {
+  overflow: hidden;
+}
+
+/* ================================================== the page over the scene */
+.page {
+  position: relative;
+  z-index: 10;
+}
+.sec {
+  position: relative;
+  padding: clamp(96px, 16vh, 180px) var(--pad);
+}
+/* a soft veil behind each chapter's copy: the scene stays visible, but text
+   never sits on its brightest metal unaided */
+.sec::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.42) 18%, rgba(0, 0, 0, 0.42) 82%, transparent),
+    radial-gradient(120% 70% at 30% 50%, rgba(0, 0, 0, 0.35), transparent 70%);
+}
+@media (max-width: 860px) {
+  .sec::before {
+    background: linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.6) 12%, rgba(0, 0, 0, 0.6) 88%, transparent);
+  }
+}
+
+/* the live-signal dot: a short pulse of blue, used where something is on */
+.live {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--signal);
+  box-shadow: 0 0 10px var(--signal);
+  flex: none;
+}
+
+/* ============================================================ reveals
+   Only headings get the line-mask reveal; their copy appears with them.
+   Without JS, or with reduced motion, everything is simply visible. */
+.mask-line {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.06em;
+  margin-bottom: -0.06em;
+}
+.mask-line > span {
+  display: block;
+}
+.js-motion [data-reveal] .mask-line > span {
+  transform: translate3d(0, 108%, 0);
+  transition: transform 1s var(--ease-out);
+  transition-delay: calc(var(--i, 0) * 90ms);
+}
+.js-motion [data-reveal] [data-reveal-fade] {
+  opacity: 0;
+  transform: translate3d(0, 14px, 0);
+  transition: opacity 0.9s var(--ease-out) 0.25s, transform 1s var(--ease-out) 0.25s;
+}
+.js-motion [data-reveal].is-in .mask-line > span,
+.js-motion [data-reveal].is-in [data-reveal-fade] {
+  transform: none;
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .js-motion [data-reveal] .mask-line > span,
+  .js-motion [data-reveal] [data-reveal-fade] {
+    transform: none;
+    opacity: 1;
+  }
+}
