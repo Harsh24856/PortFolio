@@ -1,26 +1,34 @@
-# Harsh Sehra — personal site
+# Harsh Sehra | portfolio
 
-Next.js (App Router) front end with a **Spider-Man–inspired hero**: a full-screen base image and a **mouse-driven organic blob** that reveals a second image (suit / mask layer). **Palette: red, white, and black** (see `src/app/globals.css`).
+A night walk through a live WebGL temple. The scroll moves the camera through chapters: hero, About, Work, Sketchbook, Toolkit and Contact. Projects hang in the scene as wind-blown cloth, and an illustrated sketchbook sits in a lit window.
 
-## Creative direction
+The scene engine and the sketchbook are ThreeUI landing pages (Kage and Sketchbook), vendored byte-exact under `public/landing-pages/` and checked against the SHA-256 hashes in their specs. The portfolio layer on top is this repo's own.
 
-- **Theme:** Spider-Man–style dual identity — everyday photo as the base, hero/mask image inside the moving blob (web fluid silhouette vibe).
-- **Colors:** Near-black background (`#030303` / `--background`), **white** typography, **red** accents (blob outline, kicker text). No extra palette unless you extend it.
-- **Motion:** Blob follows the pointer with a soft spring; outline stroke reads clearly on dark areas.
+## How it is put together
 
-## Component map
+| Path | Purpose |
+|------|---------|
+| `src/site/index.html` | The page: markup, styles, the Kage engine (patched: HARSH wordmark, seven camera waypoints, cloth cards) and the contact form |
+| `src/app/route.ts` | Serves that document at `/` and bakes the EmailJS ids into it |
+| `src/app/not-found.tsx` | On-brand 404 |
+| `public/landing-pages/` | Vendored Kage and Sketchbook files (scene engine, three.js, fonts, foreground cut-outs, sketchbook plates) |
+| `public/book/` | Project screenshots hung on the cloth cards |
 
-| File | Responsibility |
-|------|------------------|
-| [`src/components/HeroScene.tsx`](src/components/HeroScene.tsx) | Composes hero, hover state, image URLs |
-| [`src/components/HeroBaseImage.tsx`](src/components/HeroBaseImage.tsx) | Base `next/image` layer |
-| [`src/components/HeroRevealSvg.tsx`](src/components/HeroRevealSvg.tsx) | SVG clipPath + `<image>` reveal + stroke |
-| [`src/components/HeroCaptionOverlay.tsx`](src/components/HeroCaptionOverlay.tsx) | Bottom gradient text on hover |
-| [`src/components/useOrganicBlobClip.ts`](src/components/useOrganicBlobClip.ts) | Blob path math + rAF loop |
+## Design system
 
-Entry: [`src/app/page.tsx`](src/app/page.tsx) renders `<HeroScene />`.
+Single dark theme. One accent (vermilion `#e0231c`) for the primary button, the active nav underline and hover washes. Onest throughout. Shapes: panels 14px, fields 10px, buttons and tags pill. Reduced-motion and no-WebGL fallbacks are handled by the engine; the page stays readable as plain HTML.
 
-Setup and assets: **[`PREREQUISITE.md`](PREREQUISITE.md)**.
+## Contact form
+
+Posts straight to EmailJS from the browser. Set these in `.env.local`:
+
+```
+NEXT_PUBLIC_EMAILJS_SERVICE_ID=
+NEXT_PUBLIC_EMAILJS_TEMPLATE_ID=
+NEXT_PUBLIC_EMAILJS_PUBLIC_KEY=
+```
+
+Without them the form opens the visitor's mail app instead.
 
 ---
 
@@ -32,7 +40,6 @@ Setup and assets: **[`PREREQUISITE.md`](PREREQUISITE.md)**.
 
 **Contact**
 
-- Phone: +91 9682124943  
 - Email: harshsehra1@gmail.com  
 - GitHub | LinkedIn *(add URLs in the site when ready)*
 
@@ -116,11 +123,11 @@ npm run lint   # eslint
 
 - [Next.js](https://nextjs.org) 16  
 - React 19  
-- Tailwind CSS 4  
+- Three.js (vendored)  
 - TypeScript  
 
 ---
 
 ## Deploy
 
-Deploy on [Vercel](https://vercel.com) or any Node host that supports Next.js. Ensure `public/images/11.png` and `public/images/12.png` are included in the deployment artifact.
+Deploy on [Vercel](https://vercel.com) or any Node host that supports Next.js. Set the EmailJS variables in the host's environment before building.
