@@ -1,8 +1,17 @@
 # Harsh Sehra | portfolio
 
-A night walk across a silicon die. The scroll moves a camera over the chip at architectural scale: in over the bond wires, up the avenue between the memory banks, up the metal stack, through a row of transistor gates and onto the plateau before the core, with a wafer hanging in the sky. Chapters: hero, About, Work, Datasheets, Toolkit, Contact, and a top-down die shot in the footer.
+A 65% mechanical keyboard, built entirely in code, that the page takes apart as you scroll. Every keycap is lofted procedurally (drafted walls, a filleted rim, a cylindrical dish) with its legend printed into a texture atlas. A scan plane cuts across the board: on one side the solid case, on the other a blue wireframe showing the switches and traces inside.
 
-Black, white and a little blue. Blue is light, never fill: it marks what is live.
+| # | Chapter | What the board does |
+|---|---------|---------------------|
+| 00 | Index | Sits at three-quarters over a giant HARSH wordmark, and types the name on arrival |
+| 01 | Assembly | Pulls apart into five layers (tray, diffuser, switches, top case, keycaps), each one layer of how I build, with the separation read out in mm |
+| 02 | Layout | Seen from above; each toolkit tab lights its cluster of keys and prints the tools' names on them |
+| 03 | Work | A macro pass low over the caps, behind the cloth project cards |
+| 04 | Datasheets | Side on, half the board opened up in x-ray |
+| 05 | Contact | Every key you type, the board types too; sending the form runs a wave out from Enter |
+
+The real keyboard drives the drawn one everywhere on the page. Black, white and a little blue. Blue is light, never fill: it marks what is live.
 
 ## How it is put together
 
@@ -11,9 +20,9 @@ Black, white and a little blue. Blue is light, never fill: it marks what is live
 | `src/app/page.tsx` | The home page: server-rendered sections over the scene |
 | `src/app/work/[slug]/` | Case studies, statically generated from `src/content/projects.ts` |
 | `src/content/` | The single source of truth: profile, projects (with architecture graphs), toolkit matrix |
-| `src/components/sections/` | Hero, About, Work (cloth cards), Datasheets (page-turning book with an X-ray loupe), Toolkit (connection matrix), Contact, Footer |
-| `src/components/chrome/` | Nav, chapter rail, preloader, CAD reticle cursor, chapter foregrounds, motion toggle |
-| `src/engine/` | The WebGL die world, plain TypeScript with no React: renderer, floorplan generator, world builders, wordmark, packets, camera rig, post-processing, cloth |
+| `src/components/sections/` | Hero, Assembly (pinned, explodes the board), Layout (pinned toolkit tabs), Work (cloth cards), Datasheets (page-turning book with an X-ray loupe), Contact, Footer |
+| `src/components/chrome/` | Nav with menu sheet, numbered chapter rail, preloader, reticle cursor, motion toggle |
+| `src/engine/` | The WebGL keyboard, plain TypeScript with no React: board layout, keycap geometry, legend atlas, case layers and x-ray cut, hex backdrop with chapter words, camera rig, post-processing, cloth |
 | `src/lib/bus.ts` | The only link between the page and the engine: typed window events |
 | `public/shots/` | Project screenshots |
 
@@ -32,7 +41,8 @@ Force one with `?tier=high|mid|low`. `?shot=N` jumps to chapter N with the intro
 ## Motion and accessibility
 
 - `prefers-reduced-motion`: the camera cuts between chapters instead of flying, ambient motion stops, reveals are instant.
-- A "Pause background motion" control (under the chapter rail, or in the menu on phones) stops the scene, the cloth and the diagram packets, and is remembered.
+- A "Pause background motion" control (at the foot of the chapter rail, and in the menu) stops the board's float and glow, the typed greeting, the cloth and the diagram packets, and is remembered.
+- The toolkit tabs are a real tablist (arrow keys, Home, End); choosing one scrolls to its step, and scrolling selects it.
 - Every hover interaction has a keyboard equivalent. Checked with axe-core and a keyboard walk; WCAG 2.1 AA.
 
 ## Design system

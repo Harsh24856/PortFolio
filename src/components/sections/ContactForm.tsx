@@ -78,7 +78,7 @@ export function ContactForm() {
       if (!res.ok) throw new Error(`status ${res.status}`)
       el.reset()
       setState("sent")
-      emit("die:pulse", {})
+      emit("scene:pulse", {})
       requestAnimationFrame(() => sentRef.current?.focus())
     } catch {
       setState("failed")

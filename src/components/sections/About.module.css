@@ -1,77 +1,234 @@
+/* a long stretch of scroll, with the chapter pinned through it */
 .about {
-  min-height: 100svh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+  position: relative;
+  height: 360svh;
 }
-.grid {
+.pin {
+  position: sticky;
+  top: 0;
+  height: 100svh;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: clamp(28px, 5vw, 96px);
-  align-items: start;
+  grid-template-columns: minmax(0, 480px) 1fr auto;
+  grid-template-rows: 1fr auto;
+  column-gap: clamp(24px, 4vw, 64px);
+  padding: calc(var(--nav-h) + 12px) var(--pad) clamp(20px, 4vh, 40px) calc(var(--pad) + var(--rail-w));
+  overflow: hidden;
+}
+.pin::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.72) 0%, rgba(0, 0, 0, 0.4) 30%, transparent 52%);
 }
 .copy {
-  display: grid;
-  gap: 20px;
-  padding-top: 8px;
+  grid-column: 1;
+  grid-row: 1;
+  align-self: center;
 }
-.specs {
-  margin-top: clamp(56px, 10vh, 120px);
-  max-width: 980px;
+.copy h2 {
+  font-size: clamp(30px, 3.2vw, 50px);
+  margin-bottom: 18px;
 }
-.caption {
-  font-size: 14px;
-  color: var(--silver);
-  margin-bottom: 14px;
+.copy :global(.body) {
+  font-size: 15px;
 }
-.table {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+
+.layers {
+  list-style: none;
+  margin: 26px 0 0;
+  padding: 0;
   border-top: 1px solid var(--line);
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.2));
 }
-.row {
-  padding: 18px 20px 20px 0;
-  border-right: 1px solid var(--line-soft);
+.layers li {
+  display: grid;
+  grid-template-columns: 34px 1fr;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--line-soft);
+  color: var(--steel);
+  transition: color 0.4s var(--ease);
 }
-.row + .row {
-  padding-left: 20px;
+.n {
+  font-size: 12px;
+  padding-top: 2px;
+  transition: color 0.4s var(--ease);
 }
-.row:last-child {
-  border-right: 0;
-}
-.row dt {
-  font-size: 14px;
+.lt b {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-weight: 450;
+  font-size: 15px;
   color: var(--silver);
+  transition: color 0.4s var(--ease);
 }
-.row dd {
-  margin-top: 10px;
-  font-size: clamp(28px, 2.6vw, 40px);
+.role {
+  font-family: var(--font-mono);
+  font-weight: 400;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--steel);
+  padding-top: 3px;
+}
+.note {
+  display: grid;
+  grid-template-rows: 0fr;
+  overflow: hidden;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--silver);
+  opacity: 0;
+  transition: grid-template-rows 0.5s var(--ease-out), opacity 0.4s var(--ease), margin 0.5s var(--ease-out);
+}
+.layers li[data-on] {
+  color: var(--white);
+}
+.layers li[data-on] .n,
+.layers li[data-on] .role {
+  color: var(--signal);
+}
+.layers li[data-on] b {
+  color: var(--white);
+}
+.layers li[data-on] .note {
+  grid-template-rows: 1fr;
+  opacity: 1;
+  margin-top: 6px;
+}
+
+/* the gauge: a ruler down the right edge, filling as the layers part */
+.gauge {
+  grid-column: 3;
+  grid-row: 1;
+  align-self: center;
+  display: grid;
+  justify-items: end;
+  gap: 10px;
+}
+.ruler {
+  position: relative;
+  width: 22px;
+  height: 38svh;
+  background: repeating-linear-gradient(0deg, rgba(244, 245, 247, 0.32) 0 1px, transparent 1px 10px) right / 10px 100%
+      no-repeat,
+    repeating-linear-gradient(0deg, rgba(244, 245, 247, 0.5) 0 1px, transparent 1px 50px) right / 22px 100% no-repeat;
+}
+.ruler i {
+  position: absolute;
+  right: -1px;
+  bottom: 0;
+  width: 2px;
+  height: 100%;
+  background: var(--signal);
+  box-shadow: 0 0 10px var(--signal);
+  transform-origin: bottom;
+  transition: transform 0.15s linear;
+}
+.mm {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  font-size: clamp(30px, 2.6vw, 42px);
+  font-weight: 350;
+  letter-spacing: -0.02em;
   line-height: 1;
   color: var(--white);
-  letter-spacing: -0.02em;
 }
-.row dd small {
-  font-size: 0.42em;
-  margin-left: 6px;
+.mm small {
+  font-size: 13px;
   color: var(--steel);
   letter-spacing: 0;
 }
 
+.specs {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  display: flex;
+  gap: clamp(20px, 3.4vw, 56px);
+  margin: 0;
+  padding-top: 16px;
+  border-top: 1px solid var(--line-soft);
+}
+.specs dd {
+  margin-top: 6px;
+  font-size: clamp(20px, 1.7vw, 26px);
+  line-height: 1;
+  color: var(--white);
+}
+.specs dd small {
+  margin-left: 5px;
+  font-size: 0.5em;
+  color: var(--steel);
+}
+
+/* phones: no pin; the chapter reads straight down over the parted board */
 @media (max-width: 860px) {
-  .grid {
+  .about {
+    height: auto;
+    min-height: 160svh;
+  }
+  .pin {
+    position: relative;
+    height: auto;
+    min-height: 100svh;
     grid-template-columns: 1fr;
+    grid-template-rows: auto;
+    row-gap: 28px;
+    padding-top: clamp(96px, 14vh, 140px);
+    overflow: visible;
   }
-  .table {
-    grid-template-columns: 1fr 1fr;
+  .pin::before {
+    background: linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.66) 10%, rgba(0, 0, 0, 0.66) 90%, transparent);
   }
-  .row:nth-child(2) {
-    border-right: 0;
+  .copy,
+  .specs {
+    grid-column: 1;
+    grid-row: auto;
   }
-  .row:nth-child(3) {
-    padding-left: 0;
+  .gauge {
+    display: none;
   }
-  .row:nth-child(n + 3) {
-    border-top: 1px solid var(--line-soft);
+  .specs {
+    flex-wrap: wrap;
+    gap: 14px 28px;
+  }
+}
+@media (max-height: 880px) and (min-width: 861px) {
+  .copy h2 {
+    font-size: clamp(28px, 2.7vw, 40px);
+  }
+  .layers li {
+    padding: 8px 0;
+  }
+  .layers {
+    margin-top: 18px;
+  }
+  .copy :global(.body) {
+    font-size: 14.5px;
+    line-height: 1.55;
+  }
+}
+@media (max-height: 740px) and (min-width: 861px) {
+  .pin {
+    padding-top: calc(var(--nav-h) + 2px);
+    padding-bottom: 14px;
+  }
+  .specs {
+    padding-top: 10px;
+  }
+}
+/* too short to pin: the chapter reads straight down */
+@media (max-height: 640px) and (min-width: 861px) {
+  .about {
+    height: auto;
+    min-height: 160svh;
+  }
+  .pin {
+    position: relative;
+    height: auto;
+    min-height: 100svh;
+    overflow: visible;
   }
 }

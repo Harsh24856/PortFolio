@@ -3,20 +3,22 @@
    load at all without the page noticing anything but a missing backdrop. */
 
 export type BusEvents = {
-  /** engine boot progress, 0..1, with the fabrication step being run */
-  "die:progress": { p: number; step: string }
+  /** engine boot progress, 0..1, with the build step being run */
+  "scene:progress": { p: number; step: string }
   /** the scene is built and drawing */
-  "die:ready": { tier: Tier }
+  "scene:ready": { tier: Tier }
   /** WebGL is unavailable or a required build step failed */
-  "die:fail": { reason: string }
+  "scene:fail": { reason: string }
   /** the preloader has handed over: start the opening sequence */
-  "die:intro": Record<string, never>
-  /** a chapter chip or toolkit row is focused; -1 clears */
-  "die:focus": { index: number }
+  "scene:intro": Record<string, never>
+  /** how far apart the board's layers stand, 0 seated to 1 fully apart */
+  "scene:assembly": { e: number }
+  /** the toolkit group whose keys are lit; -1 clears */
+  "scene:group": { index: number }
   /** the reader paused or resumed the scene's ambient motion */
-  "die:pause": { paused: boolean }
-  /** a message was sent: fire a signal off the edge of the die */
-  "die:pulse": Record<string, never>
+  "scene:pause": { paused: boolean }
+  /** a message was sent: a wave runs out across the keys from Enter */
+  "scene:pulse": Record<string, never>
 }
 
 export type Tier = "high" | "mid" | "low"

@@ -1,9 +1,9 @@
-/* sits under the chapter rail, the other piece of page-wide chrome on the
-   right edge; on narrow screens, where the rail is hidden, bottom right */
+/* sits at the foot of the chapter rail in the left gutter; on narrow
+   screens, where the rail is hidden, it lives in the menu sheet only */
 .toggle {
   position: fixed;
-  right: calc(var(--pad) - 14px);
-  top: calc(50% + 86px);
+  left: max(4px, calc(var(--pad) - 20px));
+  bottom: 22px;
   z-index: 46;
   display: grid;
   place-items: center;
@@ -22,7 +22,7 @@
 }
 .tip {
   position: absolute;
-  right: 44px;
+  left: 44px;
   top: 50%;
   translate: 0 -50%;
   white-space: nowrap;
@@ -52,12 +52,11 @@
   border-top: 5px solid transparent;
   border-bottom: 5px solid transparent;
 }
-/* the menu-sheet placement, for narrow screens only */
+/* the menu-sheet placement */
 .menu {
-  display: none;
+  display: inline-flex;
   align-items: center;
   gap: 12px;
-  margin-top: 28px;
   min-height: 44px;
   font-family: var(--font-mono);
   font-size: 13px;
@@ -69,8 +68,5 @@
 @media (max-width: 860px) {
   .toggle {
     display: none;
-  }
-  .menu {
-    display: inline-flex;
   }
 }

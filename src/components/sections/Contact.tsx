@@ -7,9 +7,12 @@ export function Contact() {
   return (
     <section id="contact" className={`sec ${s.section}`} data-cam="5" aria-labelledby="contact-h">
       <div className={s.copy} data-reveal>
+        <p className="eyebrow on-scene" data-reveal-fade>
+          <span>05</span> Contact
+        </p>
         <Heading id="contact-h" lines={["Let’s build", "something."]} />
         <p className="lead on-scene" data-reveal-fade>
-          Have a product, a role or an idea that needs building? Send a note or reach me directly.
+          Have a product, a role or an idea that needs building? Send a note or reach me directly. Every key you press here, the board presses too.
         </p>
         <ul className={s.reach} data-reveal-fade>
           <li>

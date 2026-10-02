@@ -5,9 +5,14 @@ import s from "./Work.module.css"
 
 export function Work() {
   return (
-    <section id="work" className={`sec ${s.work}`} data-cam="2" aria-labelledby="work-h">
+    <section id="work" className={`sec ${s.work}`} data-cam="3" aria-labelledby="work-h">
       <header className={s.head} data-reveal>
-        <Heading id="work-h" lines={["Selected work."]} />
+        <div>
+          <p className="eyebrow on-scene" data-reveal-fade>
+            <span>03</span> Work
+          </p>
+          <Heading id="work-h" lines={["Selected work."]} />
+        </div>
         <p className="body on-scene" data-reveal-fade>
           Four products, each built end to end. Rest the pointer on one to stir the fabric; open it for how it was
           built.

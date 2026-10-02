@@ -8,21 +8,17 @@ import { Mark } from "./Mark"
 import { MotionToggle } from "./MotionToggle"
 import s from "./Nav.module.css"
 
+/* The top bar, as on a product page: the name on the left, a menu and the
+   one call to action on the right. The menu opens a full sheet of numbered
+   chapters. */
 export function Nav({ home = true }: { home?: boolean }) {
   const { id } = useChapter()
   const [open, setOpen] = useState(false)
   const [stuck, setStuck] = useState(false)
-  const [hidden, setHidden] = useState(false)
-  const last = useRef(0)
   const burger = useRef<HTMLButtonElement>(null)
 
   useEffect(() => {
-    const onScroll = () => {
-      const y = window.scrollY
-      setStuck(y > 40)
-      setHidden(y > last.current + 4 && y > window.innerHeight * 0.8)
-      last.current = y
-    }
+    const onScroll = () => setStuck(window.scrollY > 40)
     onScroll()
     window.addEventListener("scroll", onScroll, { passive: true })
     return () => window.removeEventListener("scroll", onScroll)
@@ -36,60 +32,75 @@ export function Nav({ home = true }: { home?: boolean }) {
         burger.current?.focus()
       }
     }
-    const onResize = () => window.innerWidth > 860 && setOpen(false)
     document.documentElement.classList.add("nav-open")
     window.addEventListener("keydown", onKey)
-    window.addEventListener("resize", onResize)
     return () => {
       document.documentElement.classList.remove("nav-open")
       window.removeEventListener("keydown", onKey)
-      window.removeEventListener("resize", onResize)
     }
   }, [open])
 
   const href = (anchor: string) => (home ? `#${anchor}` : `/#${anchor}`)
 
   return (
-    <header className={s.nav} data-stuck={stuck || undefined} data-hidden={(hidden && !open) || undefined} data-open={open || undefined}>
+    <header className={s.nav} data-stuck={stuck || undefined} data-open={open || undefined}>
       <Link className={s.brand} href={home ? "#top" : "/"} data-cursor aria-label={`${profile.name}, back to top`}>
-        <Mark size={30} />
-        <span className={s.brandTx}>
-          <b>{profile.name}</b>
-          <i>{profile.role}</i>
-        </span>
+        <Mark size={28} />
+        <b>{profile.name}</b>
+        <span className="tag">SWE / AI</span>
       </Link>
 
-      <nav id="site-menu" className={s.links} aria-label="Sections">
-        {chapters.map((c, i) => (
-          <a
-            key={c.id}
-            className={s.link}
-            href={href(c.id)}
-            data-cursor
-            aria-current={home && id === c.id ? "true" : undefined}
-            onClick={() => setOpen(false)}
-          >
-            <span className={`${s.idx} num`} aria-hidden="true">
-              {String(i + 1).padStart(2, "0")}
-            </span>
-            <span className={s.lbl}>{c.label}</span>
-          </a>
-        ))}
-        <MotionToggle placement="menu" />
-      </nav>
+      <div className={s.right}>
+        <button
+          ref={burger}
+          className={s.menuBtn}
+          type="button"
+          aria-expanded={open}
+          aria-controls="site-menu"
+          onClick={() => setOpen((v) => !v)}
+          data-cursor
+        >
+          <span className={s.menuTx}>{open ? "Close" : "Menu"}</span>
+          <span className={s.bars} aria-hidden="true">
+            <i />
+            <i />
+          </span>
+        </button>
+        <a className={`btn btn--solid ${s.cta}`} href={href("contact")} data-cursor>
+          Get in touch
+        </a>
+      </div>
 
-      <button
-        ref={burger}
-        className={s.burger}
-        type="button"
-        aria-label={open ? "Close menu" : "Open menu"}
-        aria-expanded={open}
-        aria-controls="site-menu"
-        onClick={() => setOpen((v) => !v)}
-      >
-        <i />
-        <i />
-      </button>
+      <nav id="site-menu" className={s.sheet} aria-label="Sections" hidden={!open}>
+        <ol className={s.list}>
+          <li>
+            <a href={home ? "#top" : "/"} onClick={() => setOpen(false)} data-cursor>
+              <span className={`${s.idx} num`}>00</span>
+              <span className={s.lbl}>Index</span>
+            </a>
+          </li>
+          {chapters.map((c, i) => (
+            <li key={c.id}>
+              <a
+                href={href(c.id)}
+                aria-current={home && id === c.id ? "true" : undefined}
+                onClick={() => setOpen(false)}
+                data-cursor
+              >
+                <span className={`${s.idx} num`}>{String(i + 1).padStart(2, "0")}</span>
+                <span className={s.lbl}>{c.label}</span>
+                <span className={s.note}>{c.note}</span>
+              </a>
+            </li>
+          ))}
+        </ol>
+        <div className={s.sheetFoot}>
+          <a href={`mailto:${profile.email}`} data-cursor>
+            {profile.email}
+          </a>
+          <MotionToggle placement="menu" />
+        </div>
+      </nav>
     </header>
   )
 }

@@ -7,7 +7,7 @@ import { emit } from "./bus"
    toggle on the page and remembered on this device. Reduced-motion users
    start paused. */
 
-const KEY = "die:paused"
+const KEY = "scene:paused"
 const listeners = new Set<() => void>()
 let paused: boolean | null = null
 
@@ -27,7 +27,7 @@ function read(): boolean {
 
 function apply(v: boolean) {
   document.documentElement.classList.toggle("motion-paused", v)
-  emit("die:pause", { paused: v })
+  emit("scene:pause", { paused: v })
   document.querySelectorAll<SVGSVGElement>("svg").forEach((svg) => {
     if (typeof svg.pauseAnimations !== "function") return
     if (v) svg.pauseAnimations()

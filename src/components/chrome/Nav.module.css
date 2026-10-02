@@ -5,176 +5,190 @@
   z-index: 50;
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 24px;
   padding: 0 var(--pad);
-  transition: transform 0.55s var(--ease);
 }
 /* the wash sits on its own layer: a backdrop-filter on the bar itself would
-   become the containing block for the fixed mobile sheet inside it */
+   become the containing block for the fixed sheet inside it */
 .nav::before {
   content: "";
   position: absolute;
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  background: rgba(0, 0, 0, 0.66);
-  -webkit-backdrop-filter: blur(14px) saturate(120%);
-  backdrop-filter: blur(14px) saturate(120%);
-  border-bottom: 1px solid var(--line-soft);
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));
   opacity: 0;
   transition: opacity 0.45s var(--ease);
 }
 .nav[data-stuck]::before {
   opacity: 1;
 }
-.nav[data-hidden] {
-  transform: translate3d(0, -100%, 0);
-}
 
 .brand {
   position: relative;
-  z-index: 2;
+  z-index: 3;
   display: flex;
   align-items: center;
   gap: 12px;
-  color: var(--white);
   min-height: 44px;
+  color: var(--white);
 }
-.brandTx {
-  display: flex;
-  flex-direction: column;
-  line-height: 1.2;
-}
-.brandTx b {
+.brand b {
   font-weight: 500;
   font-size: 15px;
   font-variation-settings: "wdth" 112;
   letter-spacing: 0.01em;
 }
-.brandTx i {
-  font-style: normal;
-  font-size: 12.5px;
+.brand :global(.tag) {
+  padding: 3px 7px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-xs);
   color: var(--silver);
 }
 
-.links {
-  display: flex;
-  gap: clamp(14px, 2.2vw, 36px);
-  margin-left: auto;
-}
-.link {
+.right {
   position: relative;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.menuBtn {
   display: inline-flex;
-  align-items: baseline;
-  gap: 7px;
-  padding: 12px 0;
-  font-size: 14.5px;
-  color: var(--silver);
-  transition: color 0.3s var(--ease);
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-sm);
+  background: rgba(0, 0, 0, 0.45);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  transition: border-color 0.3s var(--ease);
 }
-.idx {
-  font-size: 10.5px;
-  color: var(--steel);
-  transition: color 0.3s var(--ease);
+.menuBtn:hover {
+  border-color: var(--white);
 }
-.link::after {
-  content: "";
+.bars {
+  position: relative;
+  width: 16px;
+  height: 10px;
+}
+.bars i {
   position: absolute;
   left: 0;
   right: 0;
-  bottom: 6px;
-  height: 1px;
-  background: var(--signal);
-  box-shadow: 0 0 8px var(--signal);
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 0.5s var(--ease-out);
-}
-.link:hover,
-.link[aria-current] {
-  color: var(--white);
-}
-.link:hover .idx,
-.link[aria-current] .idx {
-  color: var(--signal);
-}
-.link[aria-current]::after {
-  transform: none;
-}
-
-.burger {
-  display: none;
-  position: relative;
-  width: 44px;
-  height: 44px;
-  margin-left: auto;
-  margin-right: -10px;
-}
-.burger i {
-  position: absolute;
-  left: 11px;
-  right: 11px;
   height: 1.5px;
   background: var(--white);
   transition: transform 0.45s var(--ease-out), top 0.45s var(--ease-out);
 }
-.burger i:first-child {
-  top: 17px;
+.bars i:first-child {
+  top: 1px;
 }
-.burger i:last-child {
-  top: 26px;
-  left: 18px;
+.bars i:last-child {
+  top: 7px;
 }
-.nav[data-open] .burger i:first-child {
-  top: 21.5px;
+.nav[data-open] .bars i:first-child {
+  top: 4px;
   transform: rotate(45deg);
 }
-.nav[data-open] .burger i:last-child {
-  top: 21.5px;
-  left: 11px;
+.nav[data-open] .bars i:last-child {
+  top: 4px;
   transform: rotate(-45deg);
+}
+.cta {
+  min-height: 44px;
+}
+
+/* the sheet */
+.sheet {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: calc(var(--nav-h) + 20px) var(--pad) 32px calc(var(--pad) + var(--rail-w));
+  background: rgba(0, 0, 0, 0.94);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+.sheet[hidden] {
+  display: none;
+}
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--line);
+}
+.list li {
+  border-bottom: 1px solid var(--line);
+}
+.list a {
+  display: grid;
+  grid-template-columns: 60px minmax(0, auto) 1fr;
+  align-items: baseline;
+  gap: 18px;
+  padding: clamp(10px, 1.6vh, 18px) 0;
+  color: var(--silver);
+  transition: color 0.3s var(--ease);
+}
+.idx {
+  font-size: 13px;
+  color: var(--steel);
+}
+.lbl {
+  font-size: clamp(30px, 4.4vw, 60px);
+  font-weight: 380;
+  font-variation-settings: "wdth" 116;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+}
+.note {
+  justify-self: end;
+  font-size: 14px;
+  color: var(--steel);
+}
+.list a:hover,
+.list a:focus-visible,
+.list a[aria-current] {
+  color: var(--white);
+}
+.list a:hover .idx,
+.list a[aria-current] .idx {
+  color: var(--signal);
+}
+.sheetFoot {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-top: 28px;
+  font-size: 15px;
+  color: var(--silver);
+}
+.sheetFoot a:hover {
+  color: var(--white);
 }
 
 @media (max-width: 860px) {
-  .brandTx i {
+  .note {
     display: none;
   }
-  .burger {
-    display: block;
-    z-index: 2;
+  .list a {
+    grid-template-columns: 40px 1fr;
   }
-  .links {
-    position: fixed;
-    inset: 0;
-    z-index: 1;
-    flex-direction: column;
-    justify-content: center;
-    gap: 6px;
-    margin: 0;
-    padding: var(--nav-h) var(--pad) 40px;
-    background: #000;
-    visibility: hidden;
-    opacity: 0;
-    transition: opacity 0.4s var(--ease), visibility 0s linear 0.4s;
-  }
-  .nav[data-open] .links {
-    visibility: visible;
-    opacity: 1;
-    transition: opacity 0.4s var(--ease);
-  }
-  .link {
-    font-size: clamp(30px, 9vw, 44px);
-    font-variation-settings: "wdth" 116;
-    font-weight: 380;
-    letter-spacing: -0.02em;
-    color: var(--white);
-    padding: 8px 0;
-    gap: 14px;
-  }
-  .idx {
-    font-size: 13px;
-  }
-  .link::after {
+}
+@media (max-width: 560px) {
+  .brand :global(.tag),
+  .cta {
     display: none;
   }
 }

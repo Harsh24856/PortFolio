@@ -3,11 +3,11 @@
 import { setPaused, useMotionPaused } from "@/lib/motionPref"
 import s from "./MotionToggle.module.css"
 
-/* WCAG 2.2.2: the scene's ambient motion (packets, the array, dust, cloth
-   wind) runs alongside the content indefinitely, so it can be paused. Two
-   placements share one setting: under the chapter rail on wide screens, and
-   inside the menu sheet on narrow ones, where nothing should float over the
-   content. */
+/* WCAG 2.2.2: the scene's ambient motion (the board's float, the breathing
+   underglow, the cut drifting with the pointer, the typed greeting, cloth
+   wind, diagram packets) runs alongside the content indefinitely, so it can
+   be paused. Two placements share one setting: at the foot of the chapter
+   rail on wide screens, and inside the menu sheet everywhere. */
 export function MotionToggle({ placement = "rail" }: { placement?: "rail" | "menu" }) {
   const paused = useMotionPaused()
   const label = paused ? "Play background motion" : "Pause background motion"

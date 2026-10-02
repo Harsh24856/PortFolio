@@ -3,7 +3,6 @@ import { Preloader } from "@/components/chrome/Preloader"
 import { Nav } from "@/components/chrome/Nav"
 import { ChapterRail } from "@/components/chrome/ChapterRail"
 import { Reticle } from "@/components/chrome/Reticle"
-import { Foreground } from "@/components/chrome/Foreground"
 import { MotionRoot } from "@/components/chrome/MotionRoot"
 import { MotionToggle } from "@/components/chrome/MotionToggle"
 import { Hero } from "@/components/sections/Hero"
@@ -24,7 +23,6 @@ export default function Home() {
         Skip to content
       </a>
       <SceneCanvas />
-      <Foreground />
       <Preloader />
       <Nav />
       <ChapterRail />
@@ -35,9 +33,9 @@ export default function Home() {
         <main>
           <Hero />
           <About />
+          <Toolkit />
           <Work />
           <Datasheets />
-          <Toolkit />
           <Contact />
         </main>
         <Footer />

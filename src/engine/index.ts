@@ -1,30 +1,31 @@
 import * as THREE from "three"
 import { emit, on, type Tier } from "@/lib/bus"
-import { buildFloorplan } from "./floorplan"
-import { buildEnvironment, buildWorld, updateWorld } from "./world"
-import { buildWordmark, updateWordmark, type Wordmark } from "./wordmark"
-import { buildPackets, type Packets } from "./packets"
+import { toolGroups } from "@/content/toolkit"
+import { buildEnvironment, buildKeyboard } from "./keyboard"
+import { buildBackdrop, WORDS } from "./backdrop"
+import { KEYS, keyCenter, keyIndex } from "./board"
 import { Post } from "./post"
-import { applyCamera, CAM, layoutWord, makeRig, measure, progressFor } from "./rig"
-import { DIE, PODIUM, STAIRS } from "./layout"
+import { applyCamera, CAM, makeRig, measure, narrowness, progressFor, station } from "./rig"
 import { REDUCE, clamp, damp, nextFrame, sat, smooth, vpH, vpW } from "./util"
 
-/* The die world. Built in named steps so the preloader can narrate them,
-   then driven by one requestAnimationFrame loop that maps the scroll onto
-   the camera path. Returns a disposer. */
+/* The keyboard scene. Built in named steps so the preloader can narrate
+   them, then driven by one requestAnimationFrame loop that maps the scroll
+   onto the camera path, the layers' separation and the x-ray cut. Returns a
+   disposer. */
 
 const STEPS = [
-  "Growing the oxide",
-  "Exposing the mask",
-  "Etching the metal layers",
-  "Depositing the gate",
-  "Stacking the core",
-  "Filling the memory",
-  "Bonding the pins",
-  "Raising the wafer",
-  "Setting the type",
-  "Powering on",
+  "Starting the renderer",
+  "Milling the tray",
+  "Cutting the diffuser",
+  "Seating the switches",
+  "Machining the case",
+  "Printing the legends",
+  "Moulding the caps",
+  "Casting the type",
+  "Lighting the board",
 ]
+
+const INTERACTIVE = "a, button, input, textarea, select, label, summary, [role=button], [data-cursor]"
 
 export async function startEngine(canvas: HTMLCanvasElement, opts: { tier: Tier }): Promise<() => void> {
   const reduce = REDUCE()
@@ -33,30 +34,30 @@ export async function startEngine(canvas: HTMLCanvasElement, opts: { tier: Tier 
   let usePost = opts.tier === "high" && qs.get("post") !== "0"
   const lite = opts.tier !== "high"
   let step = 0
-  const perf = qs.has("perf") ? [] as [string, number][] : null
+  const perf = qs.has("perf") ? ([] as [string, number][]) : null
   let lastMark = performance.now()
   const report = async () => {
     if (perf) {
       const now = performance.now()
       perf.push([STEPS[Math.min(step, STEPS.length - 1)], Math.round(now - lastMark)])
       lastMark = now
-      if (step === STEPS.length - 1) console.log("[die] build", JSON.stringify(perf))
+      if (step === STEPS.length - 1) console.log("[scene] build", JSON.stringify(perf))
     }
     step++
-    emit("die:progress", { p: step / STEPS.length, step: STEPS[Math.min(step, STEPS.length) - 1] })
+    emit("scene:progress", { p: step / STEPS.length, step: STEPS[Math.min(step, STEPS.length - 1)] })
     await nextFrame()
   }
-  emit("die:progress", { p: 0.02, step: STEPS[0] })
+  emit("scene:progress", { p: 0.02, step: STEPS[0] })
 
   /* ------------------------------------------------------------ renderer */
-  const DPR_CAP = lite ? 1.3 : 1.6
+  const DPR_CAP = lite ? 1.4 : 1.75
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: !usePost, alpha: false, powerPreference: "high-performance" })
   renderer.setPixelRatio(Math.min(devicePixelRatio || 1, DPR_CAP))
   renderer.setSize(vpW(), vpH(), true)
   renderer.setClearColor(0x000000, 1)
   const setDirect = () => {
     renderer.toneMapping = usePost ? THREE.NoToneMapping : THREE.ACESFilmicToneMapping
-    renderer.toneMappingExposure = 0.95
+    renderer.toneMappingExposure = 1.05
   }
   setDirect()
   const shadows = !lite
@@ -66,73 +67,72 @@ export async function startEngine(canvas: HTMLCanvasElement, opts: { tier: Tier 
   }
   const aniso = Math.min(8, renderer.capabilities.getMaxAnisotropy())
   const scene = new THREE.Scene()
-  scene.background = new THREE.Color(0x000000)
-  scene.fog = new THREE.FogExp2(0x010102, 0.014)
-  const camera = new THREE.PerspectiveCamera(CAM[0].fov, vpW() / vpH(), 0.3, 400)
-  const tmpCam = new THREE.PerspectiveCamera()
-  await report()
-
-  /* -------------------------------------------------------------- world */
-  const fp = buildFloorplan(lite ? 1536 : 2048)
-  await report()
+  const camera = new THREE.PerspectiveCamera(CAM[0].fov, vpW() / vpH(), 0.3, 200)
   const envRT = buildEnvironment(renderer)
   scene.environment = envRT.texture
-  scene.environmentIntensity = 0.32
-  /* each stage of the build yields, so no single task holds the main thread
-     and the preloader's step names are the work actually being done */
-  const built = await buildWorld(scene, fp, { aniso, lite, shadows }, report)
-  const packets: Packets = buildPackets(scene, fp.routes, lite ? 40 : 80)
-  await report()
-  const family = getComputedStyle(document.documentElement).getPropertyValue("--font-archivo").trim() || "sans-serif"
-  let word: Wordmark | null = null
-  try {
-    word = await buildWordmark(scene, family, aniso)
-  } catch (err) {
-    console.warn("[die] wordmark skipped", err)
+  scene.environmentIntensity = 0.55
+
+  /* a key light from the front left, a cold rim from behind */
+  const key = new THREE.DirectionalLight(0xfff6ec, 2.4)
+  key.position.set(-7, 14, 9)
+  if (shadows) {
+    key.castShadow = true
+    key.shadow.mapSize.set(2048, 2048)
+    const c = key.shadow.camera
+    c.left = -11
+    c.right = 11
+    c.top = 11
+    c.bottom = -11
+    c.near = 1
+    c.far = 40
+    key.shadow.bias = -0.0004
+    key.shadow.normalBias = 0.02
   }
+  const rim = new THREE.DirectionalLight(0x8aa6ff, 0.9)
+  rim.position.set(6, 4, -10)
+  scene.add(key, rim, new THREE.HemisphereLight(0xc8d0e0, 0x050507, 0.2))
   await report()
 
-  let post: Post | null = usePost
-    ? new Post(renderer, renderer.domElement.width, renderer.domElement.height, 2)
-    : null
-  /* spread the first frame's cost across yields: upload the big floorplan
-     textures one at a time, compile the scene and the post passes, and bake
-     the shadow map, so no single task holds the main thread for long */
+  /* --------------------------------------------------------------- world */
+  const family = getComputedStyle(document.documentElement).getPropertyValue("--font-archivo").trim() || "sans-serif"
+  const kb = await buildKeyboard(
+    scene,
+    { aniso, shadows, family, toolNames: toolGroups.map((g) => g.tools.map((t) => t.name)) },
+    report,
+  )
+  const back = await buildBackdrop(scene, family)
+  const BU = back.mat.uniforms
+  await report()
+
+  let post: Post | null = usePost ? new Post(renderer, renderer.domElement.width, renderer.domElement.height, 2) : null
+  const grade = () => {
+    if (!post) return
+    const u = post.comp.uniforms
+    u.uExp.value = 1.0
+    u.uSat.value = 0.88
+    u.uBloom.value = 0.5
+  }
+  grade()
+  /* spread the first frame's cost: textures up one at a time, the scene
+     and the post passes compiled, the shadow map baked, each a yield apart */
   const tick = () => new Promise<void>((r) => setTimeout(r, 0))
-  const big: THREE.Texture[] = []
-  scene.traverse((o) => {
-    const m = (o as THREE.Mesh).material as THREE.MeshStandardMaterial | undefined
-    if (m && !Array.isArray(m)) for (const t of [m.map, m.emissiveMap]) if (t && !big.includes(t)) big.push(t)
-  })
-  for (const t of big) {
+  for (const t of [kb.legendTex, back.tex]) {
     renderer.initTexture(t)
     await tick()
   }
-  /* parallel compilation only where the driver offers it; elsewhere the
-     blocking compile still runs here, before the first frame */
   const parallel = renderer.extensions.has("KHR_parallel_shader_compile")
   if (parallel) await renderer.compileAsync(scene, camera).catch(() => renderer.compile(scene, camera))
   else renderer.compile(scene, camera)
   await tick()
   if (post) await post.warm(tick, parallel)
-  if (shadows) {
-    /* one throwaway render bakes the static shadow map off the first frame */
-    renderer.setRenderTarget(post ? post.scene : null)
-    renderer.render(scene, camera)
-    renderer.setRenderTarget(null)
-    await tick()
-  }
   await report()
 
-  /* ---------------------------------------------------------- the rig */
+  /* ----------------------------------------------------------- the rig */
   const rig = makeRig()
-  const U = built.state.uniforms
   let ready = false
   let paused = document.documentElement.classList.contains("motion-paused")
-  let focusTo = 0
-  let focus = 0
-  let glowTo = 0
-  let pulseT = -1
+  let explodeTo = 0
+  let group = -1
   let intro0 = 0
   let introWanted = false
   let fade = 0
@@ -142,13 +142,13 @@ export async function startEngine(canvas: HTMLCanvasElement, opts: { tier: Tier 
   let clock = 0
   let ambient = 0
   let lastMove = 0
+  let ptrDirty = false
   const coarse = matchMedia("(pointer: coarse)").matches
   const ptr = new THREE.Vector2(0, 0)
-  const cursor = new THREE.Vector2(0, -1000)
   const ray = new THREE.Raycaster()
-  const ground = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0)
-  const plateau = new THREE.Plane(new THREE.Vector3(0, 1, 0), -PODIUM.y)
-  const hit = new THREE.Vector3()
+  const queue: { at: number; i: number; hold?: number }[] = []
+  const typed = { done: false }
+  const centre = new THREE.Vector3()
 
   const startIntro = () => {
     if (intro0) return
@@ -163,8 +163,7 @@ export async function startEngine(canvas: HTMLCanvasElement, opts: { tier: Tier 
     camera.aspect = w / h
     camera.updateProjectionMatrix()
     post?.setSize(renderer.domElement.width, renderer.domElement.height)
-    ;(built.state.dust.material as THREE.ShaderMaterial).uniforms.uPx.value = h * renderer.getPixelRatio()
-    layoutWord(word, tmpCam)
+    BU.uRes.value.set(w, h)
     measure(rig)
   }
 
@@ -194,17 +193,32 @@ export async function startEngine(canvas: HTMLCanvasElement, opts: { tier: Tier 
     }
   }
 
+  /* ------------------------------------------------------------ input */
   const onPointer = (e: PointerEvent) => {
     rig.tmx = (e.clientX / vpW()) * 2 - 1
     rig.tmy = -((e.clientY / vpH()) * 2 - 1)
     if (e.pointerType === "mouse") {
       ptr.set(rig.tmx, rig.tmy)
       lastMove = performance.now()
-      glowTo = 1
+      ptrDirty = true
     }
   }
+  let hovered = -1
+  const onDown = (e: PointerEvent) => {
+    if (hovered < 0 || e.button !== 0) return
+    const t = e.target as Element | null
+    if (t?.closest?.(INTERACTIVE)) return
+    kb.press(hovered, 0.14)
+  }
+  /* the real keyboard drives the drawn one: every key you press anywhere on
+     the page, the form included, presses its twin */
+  const onKey = (e: KeyboardEvent) => {
+    const i = keyIndex.get(e.code)
+    if (i !== undefined) kb.press(i, e.repeat ? 0.05 : 0.11)
+  }
   const onLeave = () => {
-    glowTo = 0
+    hovered = -1
+    kb.setHover(-1)
   }
   const onResize = () => resize()
   const onVis = () => {
@@ -218,21 +232,37 @@ export async function startEngine(canvas: HTMLCanvasElement, opts: { tier: Tier 
     }
   }
   addEventListener("pointermove", onPointer, { passive: true })
+  addEventListener("pointerdown", onDown, { passive: true })
+  addEventListener("keydown", onKey, { passive: true })
   document.documentElement.addEventListener("pointerleave", onLeave)
   addEventListener("resize", onResize, { passive: true })
   document.addEventListener("visibilitychange", onVis)
   const ro = new ResizeObserver(() => measure(rig))
   ro.observe(document.body)
+
+  const typeWord = (word: string, from: number, gap: number) => {
+    ;[...word].forEach((ch, n) => {
+      const i = keyIndex.get(`Key${ch}`)
+      if (i !== undefined) queue.push({ at: from + n * gap, i })
+    })
+  }
   const offs = [
-    on("die:intro", () => {
+    on("scene:intro", () => {
       introWanted = true
       if (ready) startIntro()
     }),
-    on("die:focus", ({ index }) => (focusTo = index >= 0 ? 1 : 0)),
-    on("die:pause", ({ paused: p }) => (paused = p)),
-    on("die:pulse", () => {
-      pulseT = 0
-      packets.burst(22)
+    on("scene:assembly", ({ e }) => (explodeTo = sat(e))),
+    on("scene:group", ({ index }) => (group = index)),
+    on("scene:pause", ({ paused: p }) => (paused = p)),
+    on("scene:pulse", () => {
+      /* a wave out from Enter: every key goes down in turn by distance */
+      const src = keyCenter(KEYS[keyIndex.get("Enter") ?? 0])
+      const now = performance.now()
+      KEYS.forEach((k, i) => {
+        const c = keyCenter(k)
+        const d = Math.hypot(c.x - src.x, (c.z - src.z) * 1.2)
+        queue.push({ at: now + (reduce ? 0 : d * 55), i, hold: 0.08 })
+      })
     }),
   ]
 
@@ -247,21 +277,22 @@ export async function startEngine(canvas: HTMLCanvasElement, opts: { tier: Tier 
     tPrev = now
     clock += dt
     govern(raw)
+    const still = reduce || paused
 
     rig.prog = progressFor(rig, scrollY)
     if (reduce) {
-      /* no flight: the camera cuts between chapter waypoints behind a short
-         dip to black, and never drifts with the pointer */
+      /* no flight: the camera cuts between stations behind a short dip to
+         black, and never drifts with the pointer */
       const to = Math.round(rig.prog)
       if (to !== cutTo) {
         cutTo = to
         cutAt = now
-        document.documentElement.classList.add("die-cut")
+        document.documentElement.classList.add("scene-cut")
       }
       if (cutAt && now - cutAt > 140) {
         rig.smooth = cutTo
         cutAt = 0
-        requestAnimationFrame(() => document.documentElement.classList.remove("die-cut"))
+        requestAnimationFrame(() => document.documentElement.classList.remove("scene-cut"))
       }
       rig.mx = rig.my = 0
     } else {
@@ -269,47 +300,76 @@ export async function startEngine(canvas: HTMLCanvasElement, opts: { tier: Tier 
       rig.mx = damp(rig.mx, coarse ? 0 : rig.tmx, 2.6, dt)
       rig.my = damp(rig.my, coarse ? 0 : rig.tmy, 2.6, dt)
     }
+    let introT = 0
     if (intro0) {
-      const el = (now - intro0) / 1000
-      rig.intro = reduce ? 1 : sat(el / 2.6)
-      fade = reduce ? 1 : sat(el / 0.8)
+      introT = (now - intro0) / 1000
+      rig.intro = reduce ? 1 : sat(introT / 2.8)
+      rig.intro = rig.intro * rig.intro * (3 - 2 * rig.intro)
+      fade = reduce ? 1 : sat(introT / 0.7)
+      if (!typed.done && !still && shot === null && introT > 0) {
+        typed.done = true
+        typeWord("HARSH", now + 2300, 150)
+      }
     }
     applyCamera(rig, camera)
 
-    /* the cursor's light on the die: where the pointer ray meets the metal,
-       or a slow scanner sweeping the frame on touch screens */
-    const still = reduce || paused
-    if (!still && (coarse || performance.now() - lastMove > 6000)) {
-      const a = clock * 0.23
-      ptr.set(Math.sin(a) * 0.55, -0.35 + Math.sin(a * 1.7) * 0.25)
-      glowTo = coarse ? 0.65 : glowTo * 0.995
-    }
-    ray.setFromCamera(ptr, camera)
-    if (ray.ray.intersectPlane(plateau, hit) && hit.x > PODIUM.x0 && hit.x < PODIUM.x1 && hit.z > PODIUM.z0 && hit.z < STAIRS.zBack) {
-      cursor.set(hit.x, hit.z)
-    } else if (ray.ray.intersectPlane(ground, hit)) cursor.set(hit.x, hit.z)
-    U.uCursor.value.lerp(cursor, 1 - Math.exp(-10 * dt))
-    U.uGlow.value = damp(U.uGlow.value, glowTo * (1 - smooth(5, 6, rig.smooth) * 0.7), 4, dt)
+    /* the cut: swept across the board as it arrives, then wherever the
+       station puts it, leaning a little toward the pointer on the hero */
+    const s = rig.smooth
+    const sweep = reduce || shot !== null ? 1 : smooth(0.35, 2.6, introT)
+    const hero = 1 - smooth(0.2, 0.8, s)
+    const rest = station(s, (c) => c.scan) + (still ? 0 : rig.mx * 1.2 * hero)
+    const scan = intro0 ? 10.5 + (rest - 10.5) * sweep : 10.5
 
-    focus = damp(focus, focusTo, 5, dt)
-    if (pulseT >= 0) {
-      pulseT += dt
-      U.uPulseO.value.set(0, DIE.z1 - 1.5)
-      U.uPulseR.value = pulseT * 34
-      U.uPulseA.value = Math.max(0, 1 - pulseT / 2.2)
-      if (pulseT > 2.4) pulseT = -1
+    /* pointer over a cap: lift it a hair; resting the mouse a while lets the
+       board settle back */
+    if (ptrDirty && !coarse) {
+      ptrDirty = false
+      ray.setFromCamera(ptr, camera)
+      const i = performance.now() - lastMove < 4000 ? kb.pickKey(ray.ray) : -1
+      if (i !== hovered) {
+        hovered = i
+        kb.setHover(i)
+      }
     }
+    if (queue.length) {
+      queue.sort((p, q) => p.at - q.at)
+      while (queue.length && queue[0].at <= now) {
+        const q = queue.shift()!
+        kb.press(q.i, q.hold ?? 0.1)
+      }
+    }
+
     if (!still) ambient += dt
-    updateWorld(built.state, built.cellSize, ambient, dt, focus, still)
-    packets.update(dt, still)
-    if (word) {
-      let reveal = 0
-      if (intro0) reveal = reduce || shot !== null ? 1.4 : Math.min(1.4, (now - intro0) / 1600)
-      updateWordmark(word, reveal, rig.smooth, clock)
-    }
+    kb.update({
+      dt,
+      explode: explodeTo * (1 - smooth(0.55, 0.95, Math.abs(s - 1))),
+      scan,
+      lineAlpha: intro0 ? 1 : 0,
+      group,
+      groupWeight: 1 - smooth(0.35, 0.8, Math.abs(s - 2)),
+      ambient,
+      still,
+    })
 
-    /* the air thins as the camera climbs for the die shot */
-    ;(scene.fog as THREE.FogExp2).density = 0.014 * (1 - smooth(4.6, 6, rig.smooth) * 0.8)
+    /* backdrop: the station's word, crossfading between stations, and the
+       light pool under wherever the board sits on screen */
+    const a = clamp(Math.floor(s), 0, WORDS.length - 1)
+    const b = clamp(a + 1, 0, WORDS.length - 1)
+    const f = smooth(0.25, 0.75, s - a)
+    const wa = CAM[a].word
+    const wb = CAM[b].word
+    /* on a tall screen the hero's copy fills the foot of the frame, so its
+       word rises to sit just under the board */
+    const lift = (i: number) => (i === 0 ? narrowness() * 0.24 : 0)
+    BU.uWordA.value.set(a, wa[0] + lift(a) + f * 0.05, wa[1], wa[2] * (1 - f))
+    BU.uWordB.value.set(b, wb[0] + lift(b) - (1 - f) * 0.05, wb[1], wb[2] * f)
+    centre.copy(kb.centre()).project(camera)
+    BU.uPool.value.set(centre.x * 0.5 + 0.5, centre.y * 0.5 + 0.5, 1 + kb.stackGap() * 0.12)
+    BU.uPar.value.set(camera.position.x * 0.004, camera.position.y * 0.003)
+    BU.uLight.value.set(rig.mx * 0.9, 0.4 + rig.my * 0.4)
+    BU.uT.value = clock
+    BU.uReveal.value = intro0 ? (reduce || shot !== null ? 1.2 : Math.min(1.2, introT / 1.5)) : 0
 
     if (post) {
       renderer.setRenderTarget(post.scene)
@@ -318,18 +378,19 @@ export async function startEngine(canvas: HTMLCanvasElement, opts: { tier: Tier 
       renderer.setRenderTarget(null)
       post.render(clock, intro0 ? fade : 0)
     } else {
+      BU.uFade.value = intro0 ? fade : 0
       renderer.setRenderTarget(null)
       renderer.render(scene, camera)
     }
 
     if (perf && frames < 2) {
       perf.push([`frame ${frames}`, Math.round(performance.now() - now)])
-      if (frames === 1) console.log("[die] first frames", JSON.stringify(perf.slice(-2)))
+      if (frames === 1) console.log("[scene] first frames", JSON.stringify(perf.slice(-2)))
     }
     if (!ready && ++frames >= 2) {
       ready = true
-      document.documentElement.classList.add("die-ready")
-      emit("die:ready", { tier: opts.tier })
+      document.documentElement.classList.add("scene-ready")
+      emit("scene:ready", { tier: opts.tier })
       if (introWanted || shot !== null) startIntro()
     }
     raf = requestAnimationFrame(frame)
@@ -339,18 +400,21 @@ export async function startEngine(canvas: HTMLCanvasElement, opts: { tier: Tier 
   if (shot !== null) {
     const n = clamp(parseInt(shot, 10) || 0, 0, CAM.length - 1)
     measure(rig)
-    scrollTo(0, rig.anchors[n] ?? 0)
-    rig.smooth = rig.prog = progressFor(rig, rig.anchors[n] ?? 0)
+    const y = rig.anchors.find((x) => x.v === n)?.y ?? 0
+    scrollTo(0, y)
+    rig.smooth = rig.prog = progressFor(rig, y)
     rig.intro = 1
     intro0 = performance.now() - 10000
   }
   raf = requestAnimationFrame(frame)
-  ;(window as unknown as { __die: unknown }).__die = { rig, camera, renderer, scene }
+  ;(window as unknown as { __scene: unknown }).__scene = { rig, camera, renderer, scene, kb }
 
   return () => {
     running = false
     cancelAnimationFrame(raf)
     removeEventListener("pointermove", onPointer)
+    removeEventListener("pointerdown", onDown)
+    removeEventListener("keydown", onKey)
     document.documentElement.removeEventListener("pointerleave", onLeave)
     removeEventListener("resize", onResize)
     document.removeEventListener("visibilitychange", onVis)
@@ -367,7 +431,9 @@ export async function startEngine(canvas: HTMLCanvasElement, opts: { tier: Tier 
         mt.dispose()
       })
     })
+    kb.legendTex.dispose()
+    back.tex.dispose()
     renderer.dispose()
-    document.documentElement.classList.remove("die-ready")
+    document.documentElement.classList.remove("scene-ready")
   }
 }

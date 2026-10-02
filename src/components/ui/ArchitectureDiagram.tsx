@@ -9,7 +9,7 @@ const PAD = 26
 
 type Pt = { x: number; y: number }
 
-/* A system diagram drawn the way the die is: boxes on a grid, connections
+/* A system diagram drawn like a circuit board: boxes on a grid, connections
    routed as right-angled traces through the channels between columns, with
    a via at every bend and a packet running each line. */
 export function ArchitectureDiagram({

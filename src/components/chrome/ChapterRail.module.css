@@ -1,47 +1,75 @@
 .rail {
   position: fixed;
-  right: calc(var(--pad) - 14px);
+  left: max(4px, calc(var(--pad) - 20px));
   top: 50%;
   z-index: 45;
-  display: flex;
-  flex-direction: column;
   transform: translateY(-50%);
+}
+.rail ol {
+  position: relative;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+/* the hairline the numbers hang on */
+.rail ol::before {
+  content: "";
+  position: absolute;
+  left: 21px;
+  top: -28px;
+  bottom: -28px;
+  width: 1px;
+  background: linear-gradient(180deg, transparent, var(--line-strong) 20%, var(--line-strong) 80%, transparent);
 }
 .stop {
   position: relative;
   display: grid;
-  place-items: center end;
+  place-items: center;
   width: 44px;
-  height: 26px;
-  padding-right: 10px;
+  height: 34px;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--steel);
+  transition: color 0.3s var(--ease);
 }
-.stop i {
-  display: block;
-  width: 12px;
-  height: 1px;
-  background: rgba(244, 245, 247, 0.32);
-  transition: width 0.5s var(--ease-out), background 0.3s var(--ease);
+.stop .num {
+  position: relative;
+  padding: 2px 0;
+  background: var(--void);
+  box-shadow: 0 0 0 3px var(--void);
 }
-.stop:hover i,
-.stop:focus-visible i {
-  width: 20px;
-  background: var(--white);
+.stop:hover,
+.stop:focus-visible {
+  color: var(--white);
 }
-.stop[aria-current] i {
-  width: 22px;
+.stop[aria-current] {
+  color: var(--signal);
+}
+.stop[aria-current] .num::before {
+  content: "";
+  position: absolute;
+  left: -9px;
+  top: 50%;
+  width: 4px;
+  height: 4px;
+  margin-top: -2px;
+  border-radius: 50%;
   background: var(--signal);
   box-shadow: 0 0 8px var(--signal);
 }
 .tip {
   position: absolute;
-  right: 44px;
+  left: 44px;
   top: 50%;
   translate: 0 -50%;
   white-space: nowrap;
-  font-size: 13px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
   color: var(--white);
   opacity: 0;
-  transform: translate3d(6px, 0, 0);
+  transform: translate3d(-6px, 0, 0);
   pointer-events: none;
   transition: opacity 0.3s var(--ease), transform 0.4s var(--ease-out);
   text-shadow: 0 1px 14px #000;

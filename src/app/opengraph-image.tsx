@@ -5,10 +5,10 @@ export const alt = `${profile.name}, ${profile.role}`
 export const size = { width: 1200, height: 630 }
 export const contentType = "image/png"
 
-/* The share card: the die's grid on black, the name, the role, and one blue
-   via. Generated at build time. */
+/* The share card: the name typed out on five keycaps over a pool of blue
+   underglow, then the name and role. Generated at build time. */
 export default function OpenGraphImage() {
-  const lines = Array.from({ length: 24 }, (_, i) => i)
+  const caps = "HARSH".split("")
   return new ImageResponse(
     (
       <div
@@ -24,30 +24,39 @@ export default function OpenGraphImage() {
           position: "relative",
         }}
       >
-        {lines.map((i) => (
-          <div
-            key={`v${i}`}
-            style={{ position: "absolute", top: 0, bottom: 0, left: i * 52, width: 1, background: "rgba(122,167,255,0.10)" }}
-          />
-        ))}
-        {lines.slice(0, 13).map((i) => (
-          <div
-            key={`h${i}`}
-            style={{ position: "absolute", left: 0, right: 0, top: i * 52, height: 1, background: "rgba(122,167,255,0.10)" }}
-          />
-        ))}
         <div
           style={{
             position: "absolute",
-            right: -120,
-            top: -160,
-            width: 560,
-            height: 560,
-            borderRadius: 9999,
-            border: "2px solid rgba(160,190,255,0.7)",
-            background: "radial-gradient(circle at 40% 40%, #1a2240, #05070c 70%)",
+            left: 0,
+            right: 0,
+            top: 0,
+            height: 380,
+            background: "radial-gradient(ellipse 60% 70% at 70% 60%, rgba(47,91,255,0.35), rgba(0,0,0,0) 70%)",
           }}
         />
+        <div style={{ position: "absolute", right: 80, top: 90, display: "flex", gap: 18 }}>
+          {caps.map((c, i) => (
+            <div
+              key={i}
+              style={{
+                width: 118,
+                height: 118,
+                borderRadius: 18,
+                background: "#dcd9d2",
+                border: "10px solid #c4c0b8",
+                borderTopWidth: 6,
+                borderBottomWidth: 16,
+                display: "flex",
+                padding: "10px 14px",
+                fontSize: 34,
+                color: "#2b2c30",
+                boxShadow: "0 18px 40px rgba(0,0,0,0.8)",
+              }}
+            >
+              {c}
+            </div>
+          ))}
+        </div>
         <div style={{ display: "flex", alignItems: "center", gap: 14, fontSize: 26, color: "#a9afb8" }}>
           <div style={{ width: 12, height: 12, borderRadius: 9999, background: "#7aa7ff" }} />
           {profile.role}

@@ -5,7 +5,7 @@ import { emit } from "@/lib/bus"
 import { pickTier } from "@/lib/tier"
 import s from "./SceneCanvas.module.css"
 
-/* Mounts the die world behind the page. The engine is a separate chunk that
+/* Mounts the keyboard scene behind the page. The engine is a separate chunk that
    only downloads after the page has painted; if WebGL is missing, the device
    is too weak, or any required build step throws, the poster stays and the
    page carries on exactly as it would with the scene. */
@@ -19,7 +19,7 @@ export function SceneCanvas() {
     let dispose: (() => void) | undefined
     const fail = (reason: string) => {
       document.documentElement.classList.add("no-webgl")
-      emit("die:fail", { reason })
+      emit("scene:fail", { reason })
     }
 
     const tier = pickTier()
@@ -34,7 +34,7 @@ export function SceneCanvas() {
         else dispose = d
       })
       .catch((err: unknown) => {
-        console.error("[die] engine failed", err)
+        console.error("[scene] engine failed", err)
         if (!cancelled) fail(String(err))
       })
     return () => {

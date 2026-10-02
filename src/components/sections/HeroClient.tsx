@@ -1,49 +1,6 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { emit } from "@/lib/bus"
-import s from "./Hero.module.css"
-
-const CHIPS = [
-  { href: "#about", label: "About", note: "Who I am and how I work with founders." },
-  { href: "#work", label: "Work", note: "Four products, built end to end." },
-  { href: "#datasheets", label: "Datasheets", note: "How each one is wired." },
-  { href: "#contact", label: "Contact", note: "Send a note about what you are building." },
-]
-
-/* The four chapters on offer. Resting on one lights its block on the die. */
-export function HeroChips() {
-  const [on, setOn] = useState(-1)
-  const set = (i: number) => {
-    setOn(i)
-    emit("die:focus", { index: i })
-  }
-  return (
-    <nav className={s.chips} aria-label="Chapters" data-hero-chips>
-      {CHIPS.map((c, i) => (
-        <a
-          key={c.href}
-          className={s.chip}
-          href={c.href}
-          data-cursor
-          data-reveal-fade
-          data-on={on === i || undefined}
-          style={{ transitionDelay: `${0.35 + i * 0.08}s` }}
-          onPointerEnter={() => set(i)}
-          onPointerLeave={() => set(-1)}
-          onFocus={() => set(i)}
-          onBlur={() => set(-1)}
-        >
-          <span className={`${s.chipNum} num`}>{String(i + 1).padStart(2, "0")}</span>
-          <span className={s.chipTx}>
-            <b>{c.label}</b>
-            <span>{c.note}</span>
-          </span>
-        </a>
-      ))}
-    </nav>
-  )
-}
 
 /* Local time in Chandigarh, so a reader in another zone knows when a reply
    is likely. Rendered empty on the server to avoid a hydration mismatch. */
@@ -79,19 +36,17 @@ export function HeroExit() {
       if (dead) return
       gsap.registerPlugin(ScrollTrigger)
       ctx = gsap.context(() => {
-        const chips = gsap.utils.toArray<HTMLElement>("[data-hero-chips] > a")
-        const readout = document.querySelector<HTMLElement>("[data-hero-readout]")
+        const parts = gsap.utils.toArray<HTMLElement>("[data-hero-fade]")
         const top = document.querySelector<HTMLElement>("[data-hero-top]")
         /* these carry the reveal's own CSS transition, which would trail
            every value written here by most of a second */
-        ;[...chips, readout].forEach((el) => el && (el.style.transition = "none"))
+        parts.forEach((el) => (el.style.transition = "none"))
         const tl = gsap.timeline({
           scrollTrigger: { trigger: "#hero", start: "top top", end: "bottom 35%", scrub: 0.6 },
         })
         const out = { autoAlpha: 0, y: 16, duration: 0.3, immediateRender: false }
         const rest = { autoAlpha: 1, y: 0 }
-        if (readout) tl.fromTo(readout, rest, out, 0)
-        chips.forEach((c, i) => tl.fromTo(c, rest, out, 0.1 + i * 0.08))
+        parts.forEach((c, i) => tl.fromTo(c, rest, out, i * 0.08))
         if (top) tl.fromTo(top, rest, { ...out, y: -24, duration: 0.5 }, 0.35)
       })
     }

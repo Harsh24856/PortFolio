@@ -1,6 +1,6 @@
 import s from "./SceneCanvas.module.css"
 
-/* The static stand-in for the die world, for pages that do not walk it. */
+/* The static stand-in for the keyboard scene, for pages that do not walk it. */
 export function Backdrop() {
   return (
     <>

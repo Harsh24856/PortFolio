@@ -1,18 +1,13 @@
-/* The mark: a die with its pins, and an H routed across it as two traces and
-   a bridge. The single blue via is the one live signal in the logo. */
+/* The mark: a keycap seen from above, its footprint and the smaller dished
+   top drawn in, with an H for a legend. The blue dot is the board's one
+   indicator light. */
 export function Mark({ size = 30, className }: { size?: number; className?: string }) {
   return (
     <svg viewBox="0 0 40 40" width={size} height={size} fill="none" aria-hidden="true" className={className}>
-      <rect x="7.5" y="7.5" width="25" height="25" rx="2" stroke="currentColor" strokeWidth="1.4" />
-      <path
-        d="M12 2.5v5M20 2.5v5M28 2.5v5M12 32.5v5M20 32.5v5M28 32.5v5M2.5 12h5M2.5 20h5M2.5 28h5M32.5 12h5M32.5 20h5M32.5 28h5"
-        stroke="currentColor"
-        strokeWidth="1.4"
-        strokeLinecap="round"
-        opacity=".55"
-      />
-      <path d="M15 13v14M25 13v14M15 20h10" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-      <circle cx="25" cy="20" r="2.1" fill="var(--signal)" />
+      <rect x="3.5" y="3.5" width="33" height="33" rx="7" stroke="currentColor" strokeWidth="1.4" opacity=".55" />
+      <rect x="9" y="7.5" width="22" height="21" rx="5" stroke="currentColor" strokeWidth="1.4" />
+      <path d="M15.5 12.5v11M24.5 12.5v11M15.5 18h9" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+      <circle cx="29.5" cy="32" r="1.7" fill="var(--signal)" />
     </svg>
   )
 }

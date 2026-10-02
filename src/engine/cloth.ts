@@ -578,7 +578,7 @@ export function createCloth(
   }
   document.addEventListener("visibilitychange", onHidden)
   /* a paused loop stops for good; resuming motion has to wake it */
-  const offPause = on("die:pause", ({ paused }) => !paused && start())
+  const offPause = on("scene:pause", ({ paused }) => !paused && start())
 
   syncSize()
   upload()

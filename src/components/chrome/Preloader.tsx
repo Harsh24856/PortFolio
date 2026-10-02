@@ -5,7 +5,7 @@ import { emit, on } from "@/lib/bus"
 import { introPlayed, runIntro } from "@/lib/intro"
 import s from "./Preloader.module.css"
 
-/* The build log. The engine reports each fabrication step as it runs; the
+/* The build log. The engine reports each build step as it runs; the
    bar becomes the scan line that exposes the wordmark once it hands over.
    It never holds the page hostage: if the scene is slow or absent, it steps
    aside after a few seconds and the scene fades in behind the copy later. */
@@ -23,14 +23,14 @@ export function Preloader() {
       if (done.current) return
       done.current = true
       setP(1)
-      void runIntro(root.current, () => emit("die:intro", {}))
+      void runIntro(root.current, () => emit("scene:intro", {}))
     }
-    const offP = on("die:progress", ({ p, step }) => {
+    const offP = on("scene:progress", ({ p, step }) => {
       setP((v) => Math.max(v, p))
       setLog((l) => (l[l.length - 1] === step ? l : [...l.slice(-4), step]))
     })
-    const offR = on("die:ready", () => setTimeout(finish, 240))
-    const offF = on("die:fail", finish)
+    const offR = on("scene:ready", () => setTimeout(finish, 240))
+    const offF = on("scene:fail", finish)
     /* phones get the shorter wait: the copy matters more than the reveal */
     const cap = setTimeout(finish, window.innerWidth < 860 ? CAP_MS_SMALL : CAP_MS)
     /* nothing to wait for: the intro already played this visit, or the

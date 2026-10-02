@@ -23,6 +23,8 @@
 
   --pad: clamp(16px, 3.4vw, 56px);
   --nav-h: 76px;
+  /* the numbered chapter rail down the left edge */
+  --rail-w: 44px;
   --measure: 62ch;
 
   --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
@@ -250,7 +252,7 @@ html.nav-open body {
 }
 .sec {
   position: relative;
-  padding: clamp(96px, 16vh, 180px) var(--pad);
+  padding: clamp(96px, 16vh, 180px) var(--pad) clamp(96px, 16vh, 180px) calc(var(--pad) + var(--rail-w));
 }
 /* a soft veil behind each chapter's copy: the scene stays visible, but text
    never sits on its brightest metal unaided */
@@ -322,5 +324,42 @@ html.nav-open body {
   .js-motion [data-reveal] [data-reveal-fade] {
     transform: none;
     opacity: 1;
+  }
+}
+
+/* ============================================================ chapters
+   Every chapter opens on its number and name, set small in the data face,
+   the way a spec sheet labels its sections. */
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--silver);
+}
+.eyebrow > span {
+  color: var(--signal);
+}
+.eyebrow::after {
+  content: "";
+  width: 36px;
+  height: 1px;
+  background: var(--line-strong);
+}
+/* small uppercase data labels: readouts, counts, units */
+.tag {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--steel);
+}
+@media (max-width: 860px) {
+  :root {
+    --rail-w: 0px;
   }
 }
